@@ -1,26 +1,33 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import Layout from "./Pages/Layout";
+import {BrowserRouter} from "react-router-dom";
+import {ChangeRouteProvider} from "routing-manager";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    return (
+        <div className="App">
+            <RouterProvider/>
+        </div>
+    );
+}
+
+function RouterProvider() {
+    return (
+        <BrowserRouter>
+            <AppProviders>
+                <Layout/>
+            </AppProviders>
+        </BrowserRouter>
+    );
+}
+
+function AppProviders({children, ...props}) {
+    return (
+        <ChangeRouteProvider>
+            {children}
+        </ChangeRouteProvider>
+    );
 }
 
 export default App;
