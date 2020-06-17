@@ -24,8 +24,14 @@ public class MyHttpServer {
        // HttpContext context = server.createContext("/", new EchoHandler());
        // context.setAuthenticator(new Auth());
 
-        server.createContext("/groups", new GroupsHandler());
+        GroupsHandler groupsHandler = new GroupsHandler(db);
+        server.createContext("/groups", groupsHandler);
+
+        GoodsHandler goodsHandler = new GoodsHandler(db);
+        server.createContext("/goods/:id", new GoodsHandler(db));
         server.createContext("/goods", new GoodsHandler(db));
+
+        server.createContext("/login", new LoginHandler(db));
 
         System.out.println("Routes created");
 
