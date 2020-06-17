@@ -40,9 +40,9 @@ public class LoginHandler implements HttpHandler {
 
             String bodyString = sb.toString();
 
-            JsonReader jsonReader = Json.createReader();
-            JsonObject object = jsonReader.readObject();
-            jsonReader.close();
+            //JsonReader jsonReader = Json.createReader();
+            //JsonObject object = jsonReader.readObject();
+            //jsonReader.close();
 
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
