@@ -19,20 +19,31 @@ import {useStyles} from "./styles";
 import Route from "react-router-dom/es/Route";
 import Auth from "../Auth";
 import {Switch} from 'react-router-dom'
+import Goods from "../Goods";
+import {useChangeRoute} from "routing-manager";
 
 function PagesSwitch() {
     return (
         <Switch>
             <Route path={"/goods"}>
-
+                <Goods/>
             </Route>
             <Route path={"/groups"}>
 
             </Route>
             <Route path={"/login"}>
-                <Auth />
+                <Auth/>
             </Route>
         </Switch>
+    );
+}
+
+function PanelButton({label, onClick, icon, ...props}) {
+    return (
+        <ListItem button onClick={onClick} {...props}>
+            {icon && <ListItemIcon>{icon}</ListItemIcon>}
+            <ListItemText primary={label}/>
+        </ListItem>
     );
 }
 
@@ -40,6 +51,7 @@ function PagesSwitch() {
 export default function Layout() {
     const classes = useStyles();
     const [drawerOpened, setDrawerOpened] = React.useState(true);
+    const {changeRoute} = useChangeRoute();
 
     return (
         <div className={classes.root}>
@@ -81,12 +93,7 @@ export default function Layout() {
                 </div>
                 <Divider/>
                 <List>
-                    {['Inbox', 'Hello'].map((text, index) => (
-                        <ListItem button key={text}>
-                            <ListItemIcon>{index % 2 === 0 ? <InboxIcon/> : <MailIcon/>}</ListItemIcon>
-                            <ListItemText primary={text}/>
-                        </ListItem>
-                    ))}
+                    <PanelButton label={'Goods'} icon={<InboxIcon />} onClick={event => changeRoute({panel: 'goods'})}/>
                 </List>
             </Drawer>
             <main
