@@ -24,7 +24,7 @@ function RouterProvider() {
 
 function AppProviders({children, ...props}) {
     return (
-        <ChangeRouteProvider>
+        <ChangeRouteProvider routeMask={'/:panel'}>
             {children}
         </ChangeRouteProvider>
     );
