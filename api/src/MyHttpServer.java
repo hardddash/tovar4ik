@@ -24,12 +24,15 @@ public class MyHttpServer {
        // HttpContext context = server.createContext("/", new EchoHandler());
        // context.setAuthenticator(new Auth());
 
-        GroupsHandler groupsHandler = new GroupsHandler(db);
-        server.createContext("/groups", groupsHandler);
+        server.createContext("/groups", new GroupsHandler(db));
 
         GoodsHandler goodsHandler = new GoodsHandler(db);
         server.createContext("/goods/:id", new GoodsHandler(db));
         server.createContext("/goods", new GoodsHandler(db));
+
+        server.createContext("/good", new GoodHandler(db));
+
+        server.createContext("/statistics", new StatisticsHandler(db));
 
         server.createContext("/login", new LoginHandler(db));
 

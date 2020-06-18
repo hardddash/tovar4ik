@@ -3,10 +3,13 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import entities.Good;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.postgresql.util.PSQLException;
 
 import javax.json.*;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +26,7 @@ public class GoodsHandler implements HttpHandler {
 
 
     public void getGoods(HttpExchange ex) throws SQLException {
+
         Map<String, String> params = null;
         try {
             params = queryToMap(ex.getRequestURI().getQuery());
@@ -58,9 +62,13 @@ public class GoodsHandler implements HttpHandler {
                 float price = rs.getFloat("price");
                 goods.add(new Good(id, group_id, name, description, producer, quantity, price));
             }
+
             ObjectMapper mapper = new ObjectMapper();
             String response = mapper.writeValueAsString(goods);
-            System.out.println(response);
+
+            ex.sendResponseHeaders(200, response.length());
+            OutputStream os = ex.getResponseBody();
+            os.write(response.getBytes());
 
             rs.close();
             st.close();
@@ -68,38 +76,65 @@ public class GoodsHandler implements HttpHandler {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-    }
 
-    public void deleteGood(HttpExchange ex) throws SQLException {
-        if (this.db == null) throw new NullPointerException("Error: db can't be null");
-        try {
-            System.out.println("Trying to reach database");
-            Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("DELETE FROM goods WHERE id=" + 1);
-            System.out.println("Good with id = " + 1 + " is deleted");
-            rs.close();
-            st.close();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
     }
 
     public void createGood(HttpExchange ex) {
+
         if (this.db == null) throw new NullPointerException("Error: db can't be null");
+
+        InputStream bodyStream = ex.getRequestBody();
+        StringBuilder sb = new StringBuilder();
         try {
+            int ch;
+            while (true) {
+                if (!((ch = bodyStream.read()) != -1)) break;
+                sb.append((char) ch);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String jsonString = sb.toString();
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
+        JsonObject reply = jsonReader.readObject();
+
+        try {
+            String name = reply.getString("name");
+            String description = reply.getString("description");
+            String producer = reply.getString("producer");
+            int quantity = reply.getInt("quantity");
+            double price = reply.getJsonNumber("price").doubleValue();
+            int group_id = reply.getInt("group_id");
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_seq'), 'Red socks', 'Beautiful red socks', 'Zhitomyr', 10, 15.5, 1);");
+            ResultSet rs = st.executeQuery("insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_seq'),'"
+                    + name + "','" + description + "','" + producer + "'," + quantity + "," + price + "," + group_id + ");");
             System.out.println("New good is created");
             rs.close();
             st.close();
+            ex.sendResponseHeaders(201, 0);
+        } catch (PSQLException e) {
+            try {
+                switch (e.getSQLState()) {
+                    case "02000":
+                        ex.sendResponseHeaders(201, -1);
+                        ex.getResponseBody().close();
+                        break;
+                    case "23505":
+                        ex.sendResponseHeaders(409, -1);
+                        ex.getResponseBody().close();
+                        break;
+                    default:
+                        ex.sendResponseHeaders(400, -1);
+                        ex.getResponseBody().close();
+                }
+            } catch (IOException exc) {
+                System.err.println(exc.getMessage());
+            }
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
-    }
-
-    public void editGood(HttpExchange ex) {
-
     }
 
     public Map<String, String> queryToMap(String query) {
@@ -117,6 +152,16 @@ public class GoodsHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+
+        if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
+            exchange.sendResponseHeaders(204, -1);
+            return;
+        }
+
         String method = exchange.getRequestMethod();
 
         try {
@@ -124,13 +169,8 @@ public class GoodsHandler implements HttpHandler {
                 case "GET":
                     getGoods(exchange);
                     break;
-                case "DELETE":
-                    deleteGood(exchange);
-                    break;
                 case "POST":
                     createGood(exchange);
-                case "PUT":
-                    editGood(exchange);
             }
         } catch (SQLException e) {
 
