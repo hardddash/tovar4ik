@@ -28,25 +28,6 @@ import ButtonGroup from "@material-ui/core/ButtonGroup";
 import {coreRequest} from "../../Utilities/Rest";
 
 
-const TGoods = [
-    {
-        id: 0,
-        name: 'Dasha',
-        description: 'woman',
-        quantity: 1,
-        producer: 'mama',
-        price: 2000,
-    },
-    {
-        id: 1,
-        name: 'Socks',
-        description: 'woman',
-        quantity: 100,
-        producer: 'mama',
-        price: 10,
-    },
-];
-
 function DataDialogEditor({onClose, onFinish, open, idata}) {
     const [data, setData] = React.useState(idata || {});
 
@@ -58,6 +39,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
 
     function handleAdd() {
         coreRequest().post('goods')
+            .send(data)
             .then(response => {
                 onClose && onClose();
             })
@@ -67,12 +49,18 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
 
     function handleEdit() {
         coreRequest().put('good')
+            .send(data)
             .query({id: +idata.id})
             .then(response => {
                 onClose && onClose();
             })
             .catch(console.error);
         onFinish && onFinish();
+    }
+
+    function handleInput(event) {
+        event.persist();
+        setData(last => ({...last, [event.target.name]: event.target.value}));
     }
 
     return (
@@ -85,6 +73,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                         placeholder={'Name'}
                         name={'name'}
                         value={data.name}
+                        onChange={handleInput}
                     />
                 </ListItem>
                 <ListItem>
@@ -93,6 +82,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                         placeholder={'Description'}
                         name={'description'}
                         value={data.description}
+                        onChange={handleInput}
                     />
                 </ListItem>
                 <ListItem>
@@ -101,6 +91,34 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                         placeholder={'Producer'}
                         name={'producer'}
                         value={data.producer}
+                        onChange={handleInput}
+                    />
+                </ListItem>
+                <ListItem>
+                    <TextField
+                        fullWidth
+                        placeholder={'Quantity'}
+                        name={'quantity'}
+                        value={data.quantity}
+                        onChange={handleInput}
+                    />
+                </ListItem>
+                <ListItem>
+                    <TextField
+                        fullWidth
+                        placeholder={'Price'}
+                        name={'price'}
+                        value={data.price}
+                        onChange={handleInput}
+                    />
+                </ListItem>
+                <ListItem>
+                    <TextField
+                        fullWidth
+                        placeholder={'Group'}
+                        name={'group_id'}
+                        value={data.group_id}
+                        onChange={handleInput}
                     />
                 </ListItem>
             </List>
@@ -119,7 +137,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
 }
 
 export default function Goods() {
-    const [goods, setGoods] = React.useState(TGoods);
+    const [goods, setGoods] = React.useState([]);
     const [rowId, setRowId] = React.useState(0);
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
     const classes = useStyles();
@@ -127,7 +145,6 @@ export default function Goods() {
     function handleUpdate() {
         coreRequest().get(`goods`)
             .then(response => {
-                 console.log(response);
                 setGoods(response.body);
             })
             .catch(console.error);
@@ -199,7 +216,7 @@ export default function Goods() {
             <DataDialogEditor
                 open={dataDialogOpen}
                 onClose={() => setDataDialogOpen(false)}
-                onFinish={handleUpdate}
+                onFinish={() => {setDataDialogOpen(false); handleUpdate()}}
             />
         </React.Fragment>
     );
