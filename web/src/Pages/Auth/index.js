@@ -15,6 +15,7 @@ import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import ListItemText from "@material-ui/core/ListItemText";
 import Checkbox from "@material-ui/core/Checkbox";
 import Paper from "@material-ui/core/Paper";
+import superagent from "superagent";
 
 //MUI Icons
 import {Visibility, VisibilityOff} from "@material-ui/icons";
@@ -37,7 +38,7 @@ export default function Auth({
             return;
         }
 
-        coreRequest().post('login')
+        /*coreRequest().post('login')
             .send(data)
             .then(response => {
                 console.log(response);
@@ -45,6 +46,19 @@ export default function Auth({
             .catch(error => {
                 console.error(error)
             });
+            */
+
+            superagent.post('http://localhost:80/login')
+            .set("accept","application/json")
+            .send(data)
+            .then(response => {
+                            console.log(response);
+             })
+             .catch(error => {
+                 console.error(error)
+              });
+
+
     }
 
     function handleChangePassword(event) {
