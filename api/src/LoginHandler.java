@@ -51,7 +51,7 @@ public class LoginHandler implements HttpHandler {
 
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
-           // ResultSet rs = st.executeQuery("insert into users (id, username, password) values (nextval('users_seq')," + username + "," + password + ")");
+            // ResultSet rs = st.executeQuery("insert into users (id, username, password) values (nextval('users_seq')," + username + "," + password + ")");
             //ResultSet rs = st.executeQuery("SELECT * FROM users");
 
             String token = "123";
@@ -98,7 +98,6 @@ public class LoginHandler implements HttpHandler {
                     login(exchange);
                     break;
                 case "OPTIONS":
-                    System.out.println(method);
                     break;
             }
         } catch (SQLException e) {
