@@ -66,10 +66,11 @@ public class GoodsHandler implements HttpHandler {
             ObjectMapper mapper = new ObjectMapper();
             String response = mapper.writeValueAsString(goods);
 
+
             ex.sendResponseHeaders(200, response.length());
             OutputStream os = ex.getResponseBody();
             os.write(response.getBytes());
-
+            System.out.println("finished");
             rs.close();
             st.close();
 
@@ -153,7 +154,8 @@ public class GoodsHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
+        exchange.getResponseHeaders().add("Content-Type", "application/json; charset=UTF-8");
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");

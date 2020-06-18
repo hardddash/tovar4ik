@@ -127,7 +127,8 @@ export default function Goods() {
     function handleUpdate() {
         coreRequest().get(`goods`)
             .then(response => {
-                setGoods(response);
+                 console.log(response);
+                setGoods(response.body);
             })
             .catch(console.error);
     }

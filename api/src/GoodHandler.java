@@ -182,6 +182,8 @@ public class GoodHandler implements HttpHandler {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
+        }finally {
+            ex.close();
         }
     }
 

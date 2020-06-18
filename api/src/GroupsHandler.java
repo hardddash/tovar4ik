@@ -6,8 +6,13 @@ import entities.Group;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.postgresql.util.PSQLException;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -118,10 +123,122 @@ public class GroupsHandler implements HttpHandler {
         }
     }
     public void createGroup(HttpExchange ex) throws SQLException {
+        if (this.db == null) throw new NullPointerException("Error: db can't be null");
 
+        InputStream bodyStream = ex.getRequestBody();
+        StringBuilder sb = new StringBuilder();
+        try {
+            int ch;
+            while (true) {
+                if (!((ch = bodyStream.read()) != -1)) break;
+                sb.append((char) ch);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String jsonString = sb.toString();
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
+        JsonObject reply = jsonReader.readObject();
+
+        try {
+            String name = reply.getString("name");
+            String description = reply.getString("description");
+            System.out.println("Trying to reach database");
+            Statement st = this.db.createStatement();
+            ResultSet rs = st.executeQuery("insert into groups(id, name, description) values (nextval('groups_seq'),'"
+                    + name + "','" + description + "');");
+            System.out.println("New group is created");
+            rs.close();
+            st.close();
+            ex.sendResponseHeaders(201, 0);
+        } catch (PSQLException e) {
+            try {
+                switch (e.getSQLState()) {
+                    case "02000":
+                        ex.sendResponseHeaders(201, -1);
+                        ex.getResponseBody().close();
+                        break;
+                    case "23505":
+                        ex.sendResponseHeaders(409, -1);
+                        ex.getResponseBody().close();
+                        break;
+                    default:
+                        ex.sendResponseHeaders(400, -1);
+                        ex.getResponseBody().close();
+                }
+            } catch (IOException exc) {
+                System.err.println(exc.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
     }
     public void editGroup(HttpExchange ex) throws SQLException {
+        Map<String, String> params = queryToMap(ex.getRequestURI().getQuery());
 
+        if (this.db == null) throw new NullPointerException("Error: db can't be null");
+
+        InputStream bodyStream = ex.getRequestBody();
+        StringBuilder sb = new StringBuilder();
+        try {
+            int ch;
+            while (true) {
+                if (!((ch = bodyStream.read()) != -1)) break;
+                sb.append((char) ch);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String jsonString = sb.toString();
+        JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
+        JsonObject reply = jsonReader.readObject();
+
+        try {
+            System.out.println("Trying to reach database");
+            Statement st = this.db.createStatement();
+
+            String group_id = params.get("id").toString();
+            String dbRequest = "update groups set ";
+            if (reply.containsKey("name")) dbRequest += "name = '" + reply.getString("name") + "',";
+            if (reply.containsKey("description"))
+                dbRequest += "description = '" + reply.getString("description") + "',";
+
+            if (dbRequest.charAt(dbRequest.length() - 1) == ',') {
+                dbRequest = dbRequest.substring(0, dbRequest.length() - 1);
+            }
+
+            dbRequest += " WHERE id =" +group_id;
+            System.out.println(dbRequest);
+
+            executeQuery(st, dbRequest);
+            System.out.println("Group is edited");
+            ex.sendResponseHeaders(200, 0);
+            st.close();
+        } catch (PSQLException e) {
+            try {
+                switch (e.getSQLState()) {
+                    case "02000":
+                        ex.sendResponseHeaders(201, -1);
+                        ex.getResponseBody().close();
+                        break;
+                    case "23505":
+                        ex.sendResponseHeaders(409, -1);
+                        ex.getResponseBody().close();
+                        break;
+                    default:
+                        ex.sendResponseHeaders(400, -1);
+                        ex.getResponseBody().close();
+                }
+            } catch (IOException exc) {
+                System.err.println(exc.getMessage());
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }finally {
+            ex.close();
+        }
     }
 
 

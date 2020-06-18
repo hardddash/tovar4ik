@@ -13,25 +13,25 @@ export const request = (endPoint) => {
         post: (route) => {
             const url = `${endPoint}/${route}`;
             rlog('post', url);
-            return superagent.post(url).set('accept', 'application/json').withCredentials();
+            return superagent.post(url).set('accept', 'application/json');
         },
 
         put: (route) => {
             const url = `${endPoint}/${route}`;
             rlog('put', url);
-            return superagent.put(url).set('accept', 'application/json').withCredentials();
+            return superagent.put(url).set('accept', 'application/json');
         },
 
         delete: (route) => {
             const url = `${endPoint}/${route}`;
             rlog('delete', url);
-            return superagent.delete(url).set('accept', 'application/json').withCredentials();
+            return superagent.delete(url).set('accept', 'application/json');
         },
 
         get: (route) => {
             const url = `${endPoint}/${route}`;
             rlog('get', url);
-            return superagent.get(url).set('accept', 'application/json').withCredentials();
+            return superagent.get(url).set('accept', 'application/json');
         }
     }
 };
