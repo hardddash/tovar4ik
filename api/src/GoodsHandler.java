@@ -4,13 +4,13 @@ import com.sun.net.httpserver.HttpHandler;
 import entities.Good;
 import org.codehaus.jackson.map.ObjectMapper;
 
+import javax.json.*;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 
 
 public class GoodsHandler implements HttpHandler {
@@ -21,13 +21,33 @@ public class GoodsHandler implements HttpHandler {
         this.db = db;
     }
 
-    public void getAllGoods(HttpExchange ex) throws SQLException {
+
+    public void getGoods(HttpExchange ex) throws SQLException {
+        Map<String, String> params = null;
+        try {
+            params = queryToMap(ex.getRequestURI().getQuery());
+        } catch (Exception e) {
+        }
+
+
         if (this.db == null) throw new NullPointerException("Error: db can't be null");
+
         ArrayList<Good> goods = new ArrayList<>();
+
         try {
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM goods");
+            ResultSet rs;
+            if (params == null) {
+                rs = st.executeQuery("SELECT * FROM goods");
+            } else if (params.get("query") != null) {
+                String query = params.get("query").toString();
+                System.out.println("SELECT * FROM goods WHERE name LIKE '%" + query + "%'");
+                rs = st.executeQuery("SELECT * FROM goods WHERE name LIKE '%" + query + "%'");
+            } else {
+                String id = params.get("group_id").toString();
+                rs = st.executeQuery("SELECT * FROM goods WHERE group_id =" + id);
+            }
             while (rs.next()) {
                 int id = rs.getInt("id");
                 int group_id = rs.getInt("group_id");
@@ -40,60 +60,7 @@ public class GoodsHandler implements HttpHandler {
             }
             ObjectMapper mapper = new ObjectMapper();
             String response = mapper.writeValueAsString(goods);
-
-            ex.sendResponseHeaders(200, response.length());
-            OutputStream os = ex.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-
-            rs.close();
-            st.close();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-    public void getGood(HttpExchange ex, int good_id) throws SQLException {
-        if (this.db == null) throw new NullPointerException("Error: db can't be null");
-
-        try {
-            System.out.println("Trying to reach database");
-            Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM goods WHERE id=good_id");
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                int group_id = rs.getInt("group_id");
-                String name = rs.getString("name");
-                String description = rs.getString("description");
-                String producer = rs.getString("producer");
-                int quantity = rs.getInt("quantity");
-                float price = rs.getFloat("price");
-                Good good = new Good(id, group_id, name, description, producer, quantity, price);
-            }
-            rs.close();
-            st.close();
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-    public void findGoods(HttpExchange ex, String query) throws SQLException {
-        if (this.db == null) throw new NullPointerException("Error: db can't be null");
-        ArrayList<Good> goods = new ArrayList<>();
-        try {
-            System.out.println("Trying to reach database");
-            Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM goods WHERE name LIKE '%"+query+"%'");
-            while (rs.next()) {
-                int id = rs.getInt("id");
-                int group_id = rs.getInt("group_id");
-                String name = rs.getString("name");
-                String description = rs.getString("description");
-                String producer = rs.getString("producer");
-                int quantity = rs.getInt("quantity");
-                float price = rs.getFloat("price");
-                goods.add(new Good(id, group_id, name, description, producer, quantity, price));
-            }
+            System.out.println(response);
 
             rs.close();
             st.close();
@@ -103,13 +70,13 @@ public class GoodsHandler implements HttpHandler {
         }
     }
 
-    public void deleteGood(HttpExchange ex, int good_id) throws SQLException {
+    public void deleteGood(HttpExchange ex) throws SQLException {
         if (this.db == null) throw new NullPointerException("Error: db can't be null");
         try {
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("DELETE FROM goods WHERE id=" + good_id);
-            System.out.println("Good with id = " + good_id + " is deleted");
+            ResultSet rs = st.executeQuery("DELETE FROM goods WHERE id=" + 1);
+            System.out.println("Good with id = " + 1 + " is deleted");
             rs.close();
             st.close();
         } catch (Exception e) {
@@ -131,7 +98,7 @@ public class GoodsHandler implements HttpHandler {
         }
     }
 
-    public void editGood(HttpExchange ex, int good_id) {
+    public void editGood(HttpExchange ex) {
 
     }
 
@@ -151,20 +118,19 @@ public class GoodsHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
-        Map<String, String> params = queryToMap(exchange.getRequestURI().getQuery());
+
         try {
             switch (method) {
                 case "GET":
-                    if (params.get("id") == null) getAllGoods(exchange);
-                  //  else getGood(exchange, Integer.parseInt(params.get("id")));
-                    else findGoods(exchange, params.get("query"));
+                    getGoods(exchange);
                     break;
                 case "DELETE":
-                    deleteGood(exchange, Integer.parseInt(params.get("id")));
+                    deleteGood(exchange);
                     break;
                 case "POST":
-                    if (params.get("id") == null) createGood(exchange);
-                    else editGood(exchange, Integer.parseInt(params.get("id")));
+                    createGood(exchange);
+                case "PUT":
+                    editGood(exchange);
             }
         } catch (SQLException e) {
 
