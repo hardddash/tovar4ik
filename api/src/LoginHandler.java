@@ -3,6 +3,8 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import entities.Good;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.json.Json;
@@ -14,10 +16,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.security.Key;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +27,18 @@ public class LoginHandler implements HttpHandler {
 
     public LoginHandler(Connection db) {
         this.db = db;
+    }
+
+    private boolean checkUser(String username, String pass) {
+        try {
+            PreparedStatement preparedStatement = db.prepareStatement("SELECT * FROM users WHERE username = ? AND pass = ?");
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, pass);
+            ResultSet res = preparedStatement.executeQuery();
+            return res.next();
+        } catch (SQLException e) {
+            return false;
+        }
     }
 
     public void login(HttpExchange ex) throws SQLException {
@@ -48,11 +60,26 @@ public class LoginHandler implements HttpHandler {
             JsonObject reply = jsonReader.readObject();
             String username = reply.getString("username");
             String password = reply.getString("password");
+            if (username == null || password == null) {
+                ex.sendResponseHeaders(401, 0);
+                ex.getResponseBody().close();
+                return;
+            }
+
 
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
-            // ResultSet rs = st.executeQuery("insert into users (id, username, password) values (nextval('users_seq')," + username + "," + password + ")");
-            //ResultSet rs = st.executeQuery("SELECT * FROM users");
+
+
+            if (checkUser(username, password)) {
+                SignatureAlgorithm alg = Auth.signatureAlgorithm;
+                Key key = Auth.KEY;
+                String jwt = Jwts.builder().setSubject(username).signWith(alg, key).compact();
+                ex.sendResponseHeaders(200, jwt.getBytes().length);
+                ex.getResponseBody().write(jwt.getBytes());
+            } else {
+
+            }
 
             String token = "123";
             String response_json = Json.createObjectBuilder().add("token",token).build().toString();
