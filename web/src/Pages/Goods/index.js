@@ -25,6 +25,7 @@ import ButtonGroup from "@material-ui/core/ButtonGroup";
 import {coreRequest} from "../../Utilities/Rest";
 import {useConfirmDialog} from "../../Utilities/ConfirmDialog";
 import DeleteIcon from '@material-ui/icons/Delete';
+import {useAuth} from "../../Utilities/Auth";
 
 const test_goods = [
     {
@@ -59,6 +60,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     };
     const [data, setData] = React.useState(idata || defaultData);
     const [errors, setErrors] = React.useState({});
+    const {token} = useAuth();
 
     const header = idata ? `Good: ${data.name}` : 'Good: New good';
 
@@ -105,7 +107,8 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     function handleAdd() {
         if (!handleCheckFields()) return;
 
-        coreRequest().post('goods')
+        coreRequest().add('token', token)
+            .post('goods')
             .send(data)
             .then(response => {
                 onClose && onClose();
@@ -115,7 +118,8 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     }
 
     function handleEdit() {
-        coreRequest().put('good')
+        coreRequest().add('token', token)
+            .put('good')
             .send(data)
             .query({id: +idata.id})
             .then(response => {
@@ -221,11 +225,13 @@ export default function Goods() {
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
     const [search, setSearch] = React.useState('');
     const [isNewRow, setIsNewRow] = React.useState(false);
+    const {token} = useAuth();
     const classes = useStyles();
     const confirm = useConfirmDialog();
 
     function handleUpdate() {
-        coreRequest().get(`goods`)
+        coreRequest().add('token', token)
+            .get(`goods`)
             .query({query: search ? search : undefined})
             .then(response => {
                 setGoods(response.body);
@@ -234,7 +240,8 @@ export default function Goods() {
     }
 
     function handleDelete() {
-        coreRequest().delete(`good`)
+        coreRequest().add('token', token)
+            .delete(`good`)
             .query({id: rowId})
             .then()
             .catch(console.error);
