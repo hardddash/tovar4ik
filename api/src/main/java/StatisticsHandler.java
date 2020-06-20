@@ -1,6 +1,6 @@
-import com.sun.net.httpserver.*;
-import entities.Good;
-import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,7 +8,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -85,7 +84,7 @@ public class StatisticsHandler implements HttpHandler {
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
-            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization,token");
             exchange.sendResponseHeaders(204, -1);
             return;
         }

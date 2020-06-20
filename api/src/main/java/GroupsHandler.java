@@ -1,9 +1,7 @@
-import com.sun.net.httpserver.Headers;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import entities.Good;
 import entities.Group;
-import com.fasterxml.jackson.databind.*;
 import org.postgresql.util.PSQLException;
 
 import javax.json.Json;
@@ -265,7 +263,7 @@ public class GroupsHandler implements HttpHandler {
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
-            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization,token");
             exchange.sendResponseHeaders(204, -1);
             return;
         }

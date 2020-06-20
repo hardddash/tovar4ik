@@ -79,7 +79,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             for (const key of fields) {
                 const item = data[key];
                 if (!item) {
-                    sfe(key, `Field can not be empty`);
+                    if(!errors[key]) sfe(key, `Field can not be empty`);
                     noError = false;
                 } else {
                     sfe(key, null);
@@ -91,7 +91,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             for (const key of fields) {
                 const item = data[key];
                 if (isNaN(+item)) {
-                    sfe(key, `Field must be numeric type`);
+                    if(!errors[key]) sfe(key, `Field must be numeric type`);
                     noError = false;
                 } else {
                     sfe(key, null);
@@ -99,7 +99,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             }
         }
 
-        checkEmpty(['name', 'description', 'producer', 'quantity', 'price', 'group_id']);
+        checkEmpty(['name', 'quantity', 'price', 'group_id']);
         checkNumber(['quantity', 'price', 'group_id']);
         return noError;
     }
@@ -107,9 +107,10 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     function handleAdd() {
         if (!handleCheckFields()) return;
 
-        coreRequest().add('token', token)
+        coreRequest()
             .post('goods')
             .send(data)
+            .set('token',token)
             .then(response => {
                 onClose && onClose();
             })
@@ -118,10 +119,11 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     }
 
     function handleEdit() {
-        coreRequest().add('token', token)
+        coreRequest()
             .put('good')
             .send(data)
             .query({id: +idata.id})
+            .set('token',token)
             .then(response => {
                 onClose && onClose();
             })
@@ -220,7 +222,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
 }
 
 export default function Goods() {
-    const [goods, setGoods] = React.useState(test_goods);
+    const [goods, setGoods] = React.useState([]);
     const [rowId, setRowId] = React.useState(0);
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
     const [search, setSearch] = React.useState('');
@@ -230,9 +232,10 @@ export default function Goods() {
     const confirm = useConfirmDialog();
 
     function handleUpdate() {
-        coreRequest().add('token', token)
+        coreRequest()
             .get(`goods`)
             .query({query: search ? search : undefined})
+            .set('token',token)
             .then(response => {
                 setGoods(response.body);
             })
@@ -240,9 +243,10 @@ export default function Goods() {
     }
 
     function handleDelete() {
-        coreRequest().add('token', token)
+        coreRequest()
             .delete(`good`)
             .query({id: rowId})
+            .set('token',token)
             .then()
             .catch(console.error);
     }

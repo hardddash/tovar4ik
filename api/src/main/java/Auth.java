@@ -1,26 +1,12 @@
-
-import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpPrincipal;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.SignatureAlgorithm;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.xml.bind.DatatypeConverter;
-
-
 import javax.crypto.spec.SecretKeySpec;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
+import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
-
-import java.util.Base64;
 
 public class Auth {
 
