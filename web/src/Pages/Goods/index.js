@@ -12,10 +12,7 @@ import IconButton from "@material-ui/core/IconButton";
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import InputBase from "@material-ui/core/InputBase";
-import Divider from "@material-ui/core/Divider";
-import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
-import DirectionsIcon from '@material-ui/icons/Directions';
 import Box from "@material-ui/core/Box";
 import clsx from "clsx";
 import Dialog from "@material-ui/core/Dialog";
@@ -26,18 +23,88 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import ButtonGroup from "@material-ui/core/ButtonGroup";
 import {coreRequest} from "../../Utilities/Rest";
+import {useConfirmDialog} from "../../Utilities/ConfirmDialog";
+import DeleteIcon from '@material-ui/icons/Delete';
+
+const test_goods = [
+    {
+        id: 1,
+        name: 'dasha',
+        description: 'girl',
+        producer: 'mama',
+        price: '2000',
+        quantity: '123',
+        group_id: 1,
+    },
+    {
+        id: 3,
+        name: 'pasha',
+        description: 'girl',
+        producer: 'mama',
+        price: '2000',
+        quantity: '123',
+        group_id: 1,
+    }
+]
 
 
 function DataDialogEditor({onClose, onFinish, open, idata}) {
-    const [data, setData] = React.useState(idata || {});
+    const defaultData = {
+        name: '',
+        description: '',
+        producer: '',
+        quantity: '',
+        price: '',
+        group_id: '',
+    };
+    const [data, setData] = React.useState(idata || defaultData);
+    const [errors, setErrors] = React.useState({});
 
-    const header = idata ? `Good: ${data.name}` : 'Good: New good'
+    const header = idata ? `Good: ${data.name}` : 'Good: New good';
 
     React.useEffect(() => {
-        setData(idata || {});
-    }, [idata])
+        setData(idata || defaultData);
+    }, [idata]);
+
+    function handleCheckFields() {
+        let noError = true;
+
+        function sfe(field, error) {
+            setErrors(last => ({...last, [field]: error}));
+        }
+
+        function checkEmpty(fields) {
+            for (const key of fields) {
+                const item = data[key];
+                if (!item) {
+                    sfe(key, `Field can not be empty`);
+                    noError = false;
+                } else {
+                    sfe(key, null);
+                }
+            }
+        }
+
+        function checkNumber(fields) {
+            for (const key of fields) {
+                const item = data[key];
+                if (isNaN(+item)) {
+                    sfe(key, `Field must be numeric type`);
+                    noError = false;
+                } else {
+                    sfe(key, null);
+                }
+            }
+        }
+
+        checkEmpty(['name', 'description', 'producer', 'quantity', 'price', 'group_id']);
+        checkNumber(['quantity', 'price', 'group_id']);
+        return noError;
+    }
 
     function handleAdd() {
+        if (!handleCheckFields()) return;
+
         coreRequest().post('goods')
             .send(data)
             .then(response => {
@@ -70,55 +137,67 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                 <ListItem>
                     <TextField
                         fullWidth
-                        placeholder={'Name'}
+                        label={'Name'}
                         name={'name'}
                         value={data.name}
                         onChange={handleInput}
+                        error={errors.name}
+                        helperText={errors.name && errors.name}
                     />
                 </ListItem>
                 <ListItem>
                     <TextField
                         fullWidth
-                        placeholder={'Description'}
+                        label={'Description'}
                         name={'description'}
                         value={data.description}
                         onChange={handleInput}
+                        error={errors.description}
+                        helperText={errors.description && errors.description}
                     />
                 </ListItem>
                 <ListItem>
                     <TextField
                         fullWidth
-                        placeholder={'Producer'}
+                        label={'Producer'}
                         name={'producer'}
                         value={data.producer}
                         onChange={handleInput}
+                        error={errors.producer}
+                        helperText={errors.producer && errors.producer}
                     />
                 </ListItem>
                 <ListItem>
                     <TextField
                         fullWidth
-                        placeholder={'Quantity'}
+                        label={'Quantity'}
                         name={'quantity'}
                         value={data.quantity}
                         onChange={handleInput}
+                        error={errors.quantity}
+                        helperText={errors.quantity && errors.quantity}
                     />
                 </ListItem>
                 <ListItem>
                     <TextField
                         fullWidth
-                        placeholder={'Price'}
+                        label={'Price'}
                         name={'price'}
                         value={data.price}
                         onChange={handleInput}
+                        error={errors.price}
+                        helperText={errors.price && errors.price}
                     />
                 </ListItem>
                 <ListItem>
                     <TextField
                         fullWidth
-                        placeholder={'Group'}
+                        label={'Group'}
                         name={'group_id'}
                         value={data.group_id}
                         onChange={handleInput}
+                        error={errors.group_id}
+                        helperText={errors.group_id && errors.group_id}
                     />
                 </ListItem>
             </List>
@@ -137,22 +216,43 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
 }
 
 export default function Goods() {
-    const [goods, setGoods] = React.useState([]);
+    const [goods, setGoods] = React.useState(test_goods);
     const [rowId, setRowId] = React.useState(0);
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
+    const [search, setSearch] = React.useState('');
+    const [isNewRow, setIsNewRow] = React.useState(false);
     const classes = useStyles();
+    const confirm = useConfirmDialog();
 
     function handleUpdate() {
         coreRequest().get(`goods`)
+            .query({query: search ? search : undefined})
             .then(response => {
                 setGoods(response.body);
             })
             .catch(console.error);
     }
 
+    function handleDelete() {
+        coreRequest().delete(`good`)
+            .query({id: rowId})
+            .then()
+            .catch(console.error);
+    }
+
+    function handleSearchInput(event) {
+        setSearch(event.target.value);
+    }
+
     React.useEffect(() => {
         handleUpdate();
     }, []);
+
+    React.useEffect(() => {
+        if (goods.length) {
+            setRowId(goods[0] && goods[0].id);
+        }
+    }, [goods]);
 
     return (
         <React.Fragment>
@@ -166,8 +266,14 @@ export default function Goods() {
                                         className={classes.input}
                                         placeholder="Search good"
                                         inputProps={{'aria-label': 'search google maps'}}
+                                        onChange={handleSearchInput}
+                                        value={search}
                                     />
-                                    <IconButton type="submit" className={classes.iconButton} aria-label="search">
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label="search"
+                                        onClick={handleUpdate}
+                                    >
                                         <SearchIcon/>
                                     </IconButton>
                                 </div>
@@ -203,11 +309,22 @@ export default function Goods() {
                                     </TableBody>
                                 </Table>
                             </TableContainer>
-                            <IconButton onClick={event => setDataDialogOpen(true)}>
+                            <IconButton onClick={event => {
+                                setDataDialogOpen(true);
+                                setIsNewRow(true);
+                            }}>
                                 <AddIcon/>
                             </IconButton>
-                            <IconButton onClick={event => setDataDialogOpen(true)}>
+                            <IconButton
+                                onClick={event => setDataDialogOpen(true)}
+                                disabled={!goods.length}
+                            >
                                 <EditIcon/>
+                            </IconButton>
+                            <IconButton
+                                disabled={!goods.length}
+                                onClick={event => confirm(handleDelete, {title: `Are you sure you want delete good`})}>
+                                <DeleteIcon/>
                             </IconButton>
                         </Box>
                     </Paper>
@@ -215,8 +332,16 @@ export default function Goods() {
             </Grid>
             <DataDialogEditor
                 open={dataDialogOpen}
-                onClose={() => setDataDialogOpen(false)}
-                onFinish={() => {setDataDialogOpen(false); handleUpdate()}}
+                idata={isNewRow ? undefined : goods.find(item => item.id === rowId)}
+                onClose={() => {
+                    setDataDialogOpen(false);
+                    setIsNewRow(false);
+                }}
+                onFinish={() => {
+                    setDataDialogOpen(false);
+                    handleUpdate();
+                    setIsNewRow(false);
+                }}
             />
         </React.Fragment>
     );

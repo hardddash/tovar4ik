@@ -24,12 +24,13 @@ import {Visibility, VisibilityOff} from "@material-ui/icons";
 export default function Auth({
                                  onComplete = () => {
                                  },
+                                 label,
                                  ...props
                              }) {
     const [showPassword, setShowPassword] = React.useState(false);
     const [error, setError] = React.useState(null);
-    const [data, setData] = React.useState({username: null, password: null, remember: false});
-    const {setUser} = useAuth();
+    const [data, setData] = React.useState({username: null, password: null});
+    const {setUser, setToken} = useAuth();
     const classes = useStyles();
 
     function handleLogin() {
@@ -38,16 +39,18 @@ export default function Auth({
             return;
         }
 
-        /*coreRequest().post('login')
+        coreRequest().post('login')
             .send(data)
             .then(response => {
                 console.log(response);
+                setUser({...response.body, token: undefined});
+                setToken(response.body && response.body.token);
             })
             .catch(error => {
                 console.error(error)
             });
-            */
 
+        /*
             superagent.post('http://localhost:80/login')
             .set("accept","application/json")
             .send(data)
@@ -58,7 +61,7 @@ export default function Auth({
                  console.error(error)
               });
 
-
+         */
     }
 
     function handleChangePassword(event) {
@@ -75,14 +78,14 @@ export default function Auth({
         setShowPassword(item => !item);
     }
 
-    function handleRememberMe(event) {
-        event.persist();
-        setData(last => ({...last, remember: event.target.checked || false}));
-    }
-
     return (
         <Paper className={classes.paper}>
             <List>
+                {label &&
+                <ListItem>
+                    {label}
+                </ListItem>
+                }
                 {error && <ListItem>
                     <Typography color={'error'} variant={'body2'}>
                         {error}
@@ -119,12 +122,6 @@ export default function Auth({
                             </InputAdornment>
                         }
                     />
-                </ListItem>
-                <ListItem>
-                    <ListItemText primary={'Запам\'ятати мене'}/>
-                    <ListItemSecondaryAction>
-                        <Checkbox checked={data.remember} onChange={handleRememberMe}/>
-                    </ListItemSecondaryAction>
                 </ListItem>
                 <ListItem>
                     <Button fullWidth onClick={handleLogin}>

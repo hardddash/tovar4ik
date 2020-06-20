@@ -21,6 +21,8 @@ import Auth from "../Auth";
 import {Switch} from 'react-router-dom'
 import Goods from "../Goods";
 import {useChangeRoute} from "routing-manager";
+import {useAuth} from "../../Utilities/Auth";
+import Grid from "@material-ui/core/Grid";
 
 function PagesSwitch() {
     return (
@@ -52,6 +54,19 @@ export default function Layout() {
     const classes = useStyles();
     const [drawerOpened, setDrawerOpened] = React.useState(true);
     const {changeRoute} = useChangeRoute();
+    const {user, token} = useAuth();
+
+    if (!user) {
+        return (
+            <Grid container justify={"center"} style={{height: '100vh'}}>
+                <div className={classes.loginContainer}>
+                    <div>
+                        <Auth label={<Typography variant={'h5'}> Login </Typography>}/>
+                    </div>
+                </div>
+            </Grid>
+        );
+    }
 
     return (
         <div className={classes.root}>
@@ -93,7 +108,7 @@ export default function Layout() {
                 </div>
                 <Divider/>
                 <List>
-                    <PanelButton label={'Goods'} icon={<InboxIcon />} onClick={event => changeRoute({panel: 'goods'})}/>
+                    <PanelButton label={'Goods'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'goods'})}/>
                 </List>
             </Drawer>
             <main
