@@ -28,12 +28,12 @@ export default function Auth({
                              }) {
     const [showPassword, setShowPassword] = React.useState(false);
     const [error, setError] = React.useState(null);
-    const [data, setData] = React.useState({email: null, password: null, remember: false});
+    const [data, setData] = React.useState({username: null, password: null, remember: false});
     const {setUser} = useAuth();
     const classes = useStyles();
 
     function handleLogin() {
-        if (!data.email || !data.password) {
+        if (!data.username || !data.password) {
             setError('Credential cannot be empty');
             return;
         }
@@ -68,7 +68,7 @@ export default function Auth({
 
     function handleChangeEmail(event) {
         event.persist();
-        setData(last => ({...last, email: event.target.value || null}))
+        setData(last => ({...last, username: event.target.value || null}))
     }
 
     function handleChangeShowPassword(event) {
@@ -90,12 +90,12 @@ export default function Auth({
                 </ListItem>}
                 <ListItem>
                     <Input
-                        placeholder={'Email'}
+                        placeholder={'Username'}
                         fullWidth
                         required
-                        autoComplete={'email'}
+                        autoComplete={'username'}
                         onChange={handleChangeEmail}
-                        value={data.email || ''}
+                        value={data.username || ''}
                     />
                 </ListItem>
                 <ListItem>

@@ -79,9 +79,11 @@ public class LoginHandler implements HttpHandler {
                         .setIssuer("2")
                         .signWith(signatureAlgorithm, signingKey);
                 String jwt = builder.compact();
-                ex.sendResponseHeaders(200, jwt.getBytes().length);
-                ex.getResponseBody().write(jwt.getBytes());
+                ex.getResponseHeaders().set("Authorization", "Bearer " + jwt);
+                ex.sendResponseHeaders(200, -1);
+
             } else {
+                ex.sendResponseHeaders(401, 0);
 
             }
 
@@ -90,6 +92,12 @@ public class LoginHandler implements HttpHandler {
             st.close();
         } catch (Exception e) {
             System.err.println(e.getMessage());
+        } finally {
+            try {
+                ex.getResponseBody().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
