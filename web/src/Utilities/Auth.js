@@ -3,7 +3,7 @@
 import React from 'react'
 
 
-const AuthContext = React.createContext({user: null, token: null});
+const AuthContext = React.createContext({user: null, token: null, setUser:()=>{}, setToken:()=>{console.log("cucu");}});
 
 function AuthProvider(props) {
     const [user, setUser] = React.useState(null);

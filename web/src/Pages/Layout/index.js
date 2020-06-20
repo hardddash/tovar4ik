@@ -55,8 +55,8 @@ export default function Layout() {
     const [drawerOpened, setDrawerOpened] = React.useState(true);
     const {changeRoute} = useChangeRoute();
     const {user, token} = useAuth();
-
-    if (!user) {
+    console.log("This is token",token);
+    if (!token) {
         return (
             <Grid container justify={"center"} style={{height: '100vh'}}>
                 <div className={classes.loginContainer}>

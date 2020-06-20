@@ -4,6 +4,7 @@ import Layout from "./Pages/Layout";
 import {BrowserRouter} from "react-router-dom";
 import {ChangeRouteProvider} from "routing-manager";
 import {ConfirmDialogProvider} from "./Utilities/ConfirmDialog";
+import {AuthProvider} from "./Utilities/Auth";
 
 function App() {
     return (
@@ -26,9 +27,11 @@ function RouterProvider() {
 function AppProviders({children, ...props}) {
     return (
         <ChangeRouteProvider routeMask={'/:panel'}>
-            <ConfirmDialogProvider>
-                {children}
-            </ConfirmDialogProvider>
+            <AuthProvider>
+                <ConfirmDialogProvider>
+                    {children}
+                </ConfirmDialogProvider>
+            </AuthProvider>
         </ChangeRouteProvider>
     );
 }

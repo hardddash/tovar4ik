@@ -43,8 +43,9 @@ export default function Auth({
             .send(data)
             .then(response => {
                 console.log(response);
-                setUser({...response.body, token: undefined});
-                setToken(response.body && response.body.token);
+                console.log(response.text);
+                //setUser({...response.body, token: undefined});
+                setToken(response.text);
             })
             .catch(error => {
                 console.error(error)
