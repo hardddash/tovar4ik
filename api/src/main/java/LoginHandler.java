@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.security.Key;
 import java.sql.*;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -68,19 +69,26 @@ public class LoginHandler implements HttpHandler {
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
 
+            Date expiration_time = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(expiration_time);
+            calendar.add(Calendar.HOUR, 1);
+            expiration_time = calendar.getTime();
+
 
             if (checkUser(username, password)) {
-                SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-                byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary("ParametersTOKENKEY");
-                Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
+                //SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+                //byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(Auth.SECRET_KEY);
+                //Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
                 JwtBuilder builder = Jwts.builder()
-                        .setIssuedAt(new Date())
-                        .setSubject("1")
-                        .setIssuer("2")
-                        .signWith(signatureAlgorithm, signingKey);
+                        .setIssuedAt(expiration_time)
+                        .setSubject(username)
+                        //.setIssuer("2")
+                        .signWith(Auth.signatureAlgorithm, Auth.signingKey);
                 String jwt = builder.compact();
-                ex.getResponseHeaders().set("Authorization", "Bearer " + jwt);
-                ex.sendResponseHeaders(200, -1);
+
+                ex.sendResponseHeaders(200, jwt.getBytes().length);
+                ex.getResponseBody().write(jwt.getBytes());
 
             } else {
                 ex.sendResponseHeaders(401, 0);

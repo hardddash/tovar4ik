@@ -104,9 +104,9 @@ public class GoodsHandler implements HttpHandler {
             String name = reply.getString("name");
             String description = reply.getString("description");
             String producer = reply.getString("producer");
-            int quantity = reply.getInt("quantity");
-            double price = reply.getJsonNumber("price").doubleValue();
-            int group_id = reply.getInt("group_id");
+            int quantity = new Integer(reply.getString("quantity"));
+            double price = new Double(reply.getString("price"));
+            int group_id = new Integer(reply.getString("group_id"));
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
             ResultSet rs = st.executeQuery("insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_seq'),'"
@@ -115,7 +115,14 @@ public class GoodsHandler implements HttpHandler {
             rs.close();
             st.close();
             ex.sendResponseHeaders(201, 0);
-        } catch (PSQLException e) {
+        }catch(NumberFormatException e){
+            try {
+                ex.sendResponseHeaders(406 , -1);
+                ex.getResponseBody().close();
+            } catch (IOException exc) {
+                exc.printStackTrace();
+            }
+    }catch (PSQLException e) {
             try {
                 switch (e.getSQLState()) {
                     case "02000":
@@ -165,6 +172,9 @@ public class GoodsHandler implements HttpHandler {
         }
 
         String method = exchange.getRequestMethod();
+
+       // Auth auth = new Auth();
+       // auth.authenticate(exchange);
 
         try {
             switch (method) {

@@ -26,9 +26,10 @@ public class MyHttpServer {
 
         server.createContext("/groups", new GroupsHandler(db));
 
-        GoodsHandler goodsHandler = new GoodsHandler(db);
-        server.createContext("/goods/:id", new GoodsHandler(db));
-        server.createContext("/goods", new GoodsHandler(db));
+
+        //HttpContext goodContext = server.createContext("/goods/:id", new GoodsHandler(db));
+        HttpContext goodsContext = server.createContext("/goods", new GoodsHandler(db));
+        goodsContext.setAuthenticator(new Auth());
 
         server.createContext("/good", new GoodHandler(db));
 
