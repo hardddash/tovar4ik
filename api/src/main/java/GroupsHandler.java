@@ -87,6 +87,7 @@ public class GroupsHandler implements HttpHandler {
             System.err.println(e.getMessage());
         }
     }
+
     public void deleteGroup(HttpExchange ex) throws SQLException {
         Map<String, String> params = queryToMap(ex.getRequestURI().getQuery());
 
@@ -122,6 +123,7 @@ public class GroupsHandler implements HttpHandler {
             System.err.println(e.getMessage());
         }
     }
+
     public void createGroup(HttpExchange ex) throws SQLException {
         if (this.db == null) throw new NullPointerException("Error: db can't be null");
 
@@ -174,6 +176,7 @@ public class GroupsHandler implements HttpHandler {
             System.err.println(e.getMessage());
         }
     }
+
     public void editGroup(HttpExchange ex) throws SQLException {
         Map<String, String> params = queryToMap(ex.getRequestURI().getQuery());
 
@@ -209,7 +212,7 @@ public class GroupsHandler implements HttpHandler {
                 dbRequest = dbRequest.substring(0, dbRequest.length() - 1);
             }
 
-            dbRequest += " WHERE id =" +group_id;
+            dbRequest += " WHERE id =" + group_id;
             System.out.println(dbRequest);
 
             executeQuery(st, dbRequest);
@@ -236,7 +239,7 @@ public class GroupsHandler implements HttpHandler {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-        }finally {
+        } finally {
             ex.close();
         }
     }
@@ -269,26 +272,32 @@ public class GroupsHandler implements HttpHandler {
 
         String method = exchange.getRequestMethod();
 
-        try {
-            switch (method) {
-                case "GET":
-                    getGroup(exchange);
-                    break;
-                case "DELETE":
-                    deleteGroup(exchange);
-                    break;
-                case "POST":
-                    createGroup(exchange);
-                    break;
-                case "PUT":
-                    editGroup(exchange);
+        if (!new Auth().authenticate(exchange)) {
+            exchange.sendResponseHeaders(401, -1);
+            exchange.getResponseBody().close();
+        } else {
+
+            try {
+                switch (method) {
+                    case "GET":
+                        getGroup(exchange);
+                        break;
+                    case "DELETE":
+                        deleteGroup(exchange);
+                        break;
+                    case "POST":
+                        createGroup(exchange);
+                        break;
+                    case "PUT":
+                        editGroup(exchange);
+
+                }
+            } catch (SQLException e) {
+
+            } catch (NullPointerException e) {
 
             }
-        } catch (SQLException e) {
-
-        } catch (NullPointerException e) {
 
         }
-
     }
 }

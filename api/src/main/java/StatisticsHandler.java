@@ -42,7 +42,7 @@ public class StatisticsHandler implements HttpHandler {
                 rs = st.executeQuery("select sum(total) as total_price from(select price*quantity as total from goods) as counted limit 1");
             } else {
                 String id = params.get("group_id").toString();
-                rs = st.executeQuery("select sum(total) as total_price from(select price*quantity as total from goods where group_id="+id+") as counted limit 1");
+                rs = st.executeQuery("select sum(total) as total_price from(select price*quantity as total from goods where group_id=" + id + ") as counted limit 1");
             }
             rs.next();
             Double total_price = rs.getDouble("total_price");
@@ -91,17 +91,22 @@ public class StatisticsHandler implements HttpHandler {
         }
         String method = exchange.getRequestMethod();
 
-        try {
-            switch (method) {
-                case "GET":
-                    statistics(exchange);
+        if (!new Auth().authenticate(exchange)) {
+            exchange.sendResponseHeaders(401, -1);
+            exchange.getResponseBody().close();
+        } else {
+            try {
+                switch (method) {
+                    case "GET":
+                        statistics(exchange);
+
+                }
+            } catch (SQLException e) {
+
+            } catch (NullPointerException e) {
 
             }
-        } catch (SQLException e) {
-
-        } catch (NullPointerException e) {
 
         }
-
     }
 }

@@ -95,7 +95,6 @@ public class LoginHandler implements HttpHandler {
 
             }
 
-
             // rs.close();
             st.close();
         } catch (Exception e) {

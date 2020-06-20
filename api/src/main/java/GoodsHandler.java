@@ -115,14 +115,14 @@ public class GoodsHandler implements HttpHandler {
             rs.close();
             st.close();
             ex.sendResponseHeaders(201, 0);
-        }catch(NumberFormatException e){
+        } catch (NumberFormatException e) {
             try {
-                ex.sendResponseHeaders(406 , -1);
+                ex.sendResponseHeaders(406, -1);
                 ex.getResponseBody().close();
             } catch (IOException exc) {
                 exc.printStackTrace();
             }
-    }catch (PSQLException e) {
+        } catch (PSQLException e) {
             try {
                 switch (e.getSQLState()) {
                     case "02000":
@@ -173,22 +173,25 @@ public class GoodsHandler implements HttpHandler {
 
         String method = exchange.getRequestMethod();
 
-       // Auth auth = new Auth();
-       // auth.authenticate(exchange);
+        if (!new Auth().authenticate(exchange)) {
+            exchange.sendResponseHeaders(401, -1);
+            exchange.getResponseBody().close();
+        } else {
 
-        try {
-            switch (method) {
-                case "GET":
-                    getGoods(exchange);
-                    break;
-                case "POST":
-                    createGood(exchange);
+            try {
+                switch (method) {
+                    case "GET":
+                        getGoods(exchange);
+                        break;
+                    case "POST":
+                        createGood(exchange);
+                }
+            } catch (SQLException e) {
+
+            } catch (NullPointerException e) {
+
             }
-        } catch (SQLException e) {
-
-        } catch (NullPointerException e) {
 
         }
-
     }
 }

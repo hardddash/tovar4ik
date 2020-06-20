@@ -155,7 +155,7 @@ public class GoodHandler implements HttpHandler {
                 dbRequest = dbRequest.substring(0, dbRequest.length() - 1);
             }
 
-            dbRequest += " WHERE id =" +good_id;
+            dbRequest += " WHERE id =" + good_id;
             System.out.println(dbRequest);
 
             executeQuery(st, dbRequest);
@@ -182,7 +182,7 @@ public class GoodHandler implements HttpHandler {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-        }finally {
+        } finally {
             ex.close();
         }
     }
@@ -214,23 +214,27 @@ public class GoodHandler implements HttpHandler {
         }
 
         String method = exchange.getRequestMethod();
+        if (!new Auth().authenticate(exchange)) {
+            exchange.sendResponseHeaders(401, -1);
+            exchange.getResponseBody().close();
+        } else {
+            try {
+                switch (method) {
+                    case "GET":
+                        getGood(exchange);
+                        break;
+                    case "DELETE":
+                        deleteGood(exchange);
+                        break;
+                    case "PUT":
+                        editGood(exchange);
+                }
+            } catch (SQLException e) {
 
-        try {
-            switch (method) {
-                case "GET":
-                    getGood(exchange);
-                    break;
-                case "DELETE":
-                    deleteGood(exchange);
-                    break;
-                case "PUT":
-                    editGood(exchange);
+            } catch (NullPointerException e) {
+
             }
-        } catch (SQLException e) {
-
-        } catch (NullPointerException e) {
 
         }
-
     }
 }

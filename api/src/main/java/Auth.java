@@ -22,43 +22,28 @@ import java.security.Key;
 
 import java.util.Base64;
 
-public class Auth extends Authenticator {
+public class Auth {
 
     public static final String SECRET_KEY = "1234";
     public static final SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
     public static final byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(Auth.SECRET_KEY);
     public static final Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
 
-    @Override
-    public Authenticator.Result authenticate(HttpExchange httpExchange) {
+    public boolean authenticate(HttpExchange httpExchange) {
         try {
-            InputStream bodyStream = httpExchange.getRequestBody();
-            StringBuilder sb = new StringBuilder();
-            try {
-                int ch;
-                while (true) {
-                    if (!((ch = bodyStream.read()) != -1)) break;
-                    sb.append((char) ch);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
-            String jsonString = sb.toString();
-            JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
-            JsonObject jsonObject = jsonReader.readObject();
-            String token = jsonObject.getString("bearer");
+            String token = httpExchange.getRequestHeaders().getFirst("token");
 
             if (token == null)
                 throw new JwtException("Wrong token");
-           // Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
+            // Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
 
             Claims claims = this.decodeJWT(token);
 
-            return new Authenticator.Success(new HttpPrincipal("c0nst", "realm"));
+            return true;
 
         } catch (JwtException ex) {
-            return new Authenticator.Failure(403);
+            return false;
         }
 
     }
