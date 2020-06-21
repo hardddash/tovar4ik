@@ -87,7 +87,6 @@ public class LoginHandler implements HttpHandler {
 
             } else {
                 ex.sendResponseHeaders(401, 0);
-
             }
 
             // rs.close();

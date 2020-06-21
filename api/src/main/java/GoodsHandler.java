@@ -47,14 +47,14 @@ public class GoodsHandler implements HttpHandler {
             Statement st = this.db.createStatement();
             ResultSet rs;
             if (params == null) {
-                rs = st.executeQuery("SELECT * FROM goods");
+                rs = st.executeQuery("SELECT * FROM goods order by goods.id");
             } else if (params.get("query") != null) {
                 String query = params.get("query").toString();
-                System.out.println("SELECT * FROM goods WHERE name LIKE '%" + query + "%'");
+                System.out.println("SELECT * FROM goods WHERE name LIKE '%" + query + "%' ");
                 rs = st.executeQuery("SELECT * FROM goods WHERE name LIKE '%" + query + "%'");
             } else {
                 String id = params.get("group_id").toString();
-                rs = st.executeQuery("SELECT * FROM goods WHERE group_id =" + id);
+                rs = st.executeQuery("SELECT * FROM goods WHERE group_id =" + id + " order by goods.id");
             }
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -75,11 +75,19 @@ public class GoodsHandler implements HttpHandler {
             OutputStream os = ex.getResponseBody();
             os.write(response.getBytes());
             System.out.println("finished");
+
             rs.close();
             st.close();
 
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
+        }finally{
+            try {
+                ex.getResponseBody().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
     }
@@ -108,9 +116,9 @@ public class GoodsHandler implements HttpHandler {
             String name = reply.getString("name");
             String description = reply.getString("description");
             String producer = reply.getString("producer");
-            int quantity = new Integer(reply.getString("quantity"));
-            double price = new Double(reply.getString("price"));
-            int group_id = new Integer(reply.getString("group_id"));
+            int quantity = reply.getInt("quantity");
+            double price = reply.getJsonNumber("price").doubleValue();
+            int group_id = reply.getInt("group_id");
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
             ResultSet rs = st.executeQuery("insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_seq'),'"
@@ -146,6 +154,12 @@ public class GoodsHandler implements HttpHandler {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
+        }finally{
+            try {
+                ex.getResponseBody().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -169,7 +183,7 @@ public class GoodsHandler implements HttpHandler {
         exchange.getResponseHeaders().add("Content-Type", "application/json; charset=UTF-8");
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
-            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS, POST, PUT, DELETE");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization,token");
             exchange.sendResponseHeaders(204, -1);
             return;

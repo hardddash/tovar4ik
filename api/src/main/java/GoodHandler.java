@@ -186,7 +186,13 @@ public class GoodHandler implements HttpHandler {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
+            try {
+                ex.getResponseBody().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             ex.close();
+
         }
     }
 
@@ -210,7 +216,7 @@ public class GoodHandler implements HttpHandler {
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
-            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS, POST,DELETE, PUT");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization, token");
             exchange.sendResponseHeaders(204, -1);
             return;

@@ -167,7 +167,7 @@ export default function Groups() {
             .get(`groups`)
             .set('token', token)
             .then(response => {
-                setGroups(response.body);
+                setGroups(response.body || []);
             })
             .catch(console.error);
     }

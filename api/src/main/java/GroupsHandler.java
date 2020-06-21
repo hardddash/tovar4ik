@@ -59,10 +59,10 @@ public class GroupsHandler implements HttpHandler {
             Statement st = this.db.createStatement();
             ResultSet rs;
             if (params == null) {
-                rs = st.executeQuery("SELECT * FROM groups");
+                rs = st.executeQuery("SELECT * FROM groups order by groups.id");
             } else {
                 String group_id = params.get("id").toString();
-                rs = st.executeQuery("SELECT * FROM groups WHERE id =" + group_id);
+                rs = st.executeQuery("SELECT * FROM groups WHERE id =" + group_id + " order by groups.id");
             }
             while (rs.next()) {
                 int id = rs.getInt("id");
@@ -260,9 +260,10 @@ public class GroupsHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
 
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+        exchange.getResponseHeaders().add("Content-Type", "application/json; charset=UTF-8");
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
-            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, OPTIONS, POST, PUT, DELETE");
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type,Authorization,token");
             exchange.sendResponseHeaders(204, -1);
             return;
