@@ -104,6 +104,9 @@ public class StatisticsHandler implements HttpHandler {
 
             } catch (NullPointerException e) {
 
+            } finally {
+                exchange.getResponseBody().close();
+                exchange.close();
             }
 
         }

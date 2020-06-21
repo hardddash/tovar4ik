@@ -115,7 +115,6 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             .send(data)
             .set('token', token)
             .then(response => {
-                console.log(response);
                 onFinish && onFinish();
             })
             .catch(console.error);

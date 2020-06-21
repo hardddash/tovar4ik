@@ -95,17 +95,22 @@ public class GroupsHandler implements HttpHandler {
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
 
-            String good_id = params.get("id").toString();
-            System.out.println("DELETE * FROM goods WHERE id =" + good_id);
-            executeQuery(st, "DELETE FROM goods WHERE id = " + good_id);
+            String group_id = params.get("id").toString();
+            System.out.println("DELETE FROM groups WHERE id = " + group_id);
+            ResultSet rs = st.executeQuery("DELETE FROM groups WHERE id = " + group_id);
 
             ex.sendResponseHeaders(200, -1);
             ex.getResponseBody().close();
 
+            rs.close();
             st.close();
         } catch (PSQLException e) {
             try {
                 switch (e.getSQLState()) {
+                    case "02000":
+                        ex.sendResponseHeaders(201, -1);
+                        ex.getResponseBody().close();
+                        break;
                     case "23505":
                         ex.sendResponseHeaders(409, -1);
                         ex.getResponseBody().close();
@@ -119,6 +124,13 @@ public class GroupsHandler implements HttpHandler {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
+        } finally {
+            try {
+                ex.getResponseBody().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ex.close();
         }
     }
 
@@ -172,6 +184,13 @@ public class GroupsHandler implements HttpHandler {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
+        } finally {
+            try {
+                ex.getResponseBody().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ex.close();
         }
     }
 
@@ -216,6 +235,7 @@ public class GroupsHandler implements HttpHandler {
             executeQuery(st, dbRequest);
             System.out.println("Group is edited");
             ex.sendResponseHeaders(200, 0);
+            ex.getResponseBody().close();
             st.close();
         } catch (PSQLException e) {
             try {
@@ -238,6 +258,11 @@ public class GroupsHandler implements HttpHandler {
         } catch (Exception e) {
             System.err.println(e.getMessage());
         } finally {
+            try {
+                ex.getResponseBody().close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             ex.close();
         }
     }
@@ -295,6 +320,9 @@ public class GroupsHandler implements HttpHandler {
 
             } catch (NullPointerException e) {
 
+            } finally {
+                exchange.getResponseBody().close();
+                exchange.close();
             }
 
         }

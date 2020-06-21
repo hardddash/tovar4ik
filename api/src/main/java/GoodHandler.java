@@ -242,6 +242,9 @@ public class GoodHandler implements HttpHandler {
 
             } catch (NullPointerException e) {
 
+            } finally {
+                exchange.getResponseBody().close();
+                exchange.close();
             }
 
         }

@@ -143,6 +143,9 @@ public class LoginHandler implements HttpHandler {
 
         } catch (NullPointerException e) {
             System.err.println(e.getMessage());
+        } finally {
+            exchange.getResponseBody().close();
+            exchange.close();
         }
 
     }

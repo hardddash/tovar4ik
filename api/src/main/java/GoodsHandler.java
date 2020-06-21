@@ -208,6 +208,9 @@ public class GoodsHandler implements HttpHandler {
 
             } catch (NullPointerException e) {
 
+            } finally {
+                exchange.getResponseBody().close();
+                exchange.close();
             }
 
         }
