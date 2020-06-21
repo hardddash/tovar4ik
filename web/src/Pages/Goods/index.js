@@ -26,6 +26,10 @@ import {coreRequest} from "../../Utilities/Rest";
 import {useConfirmDialog} from "../../Utilities/ConfirmDialog";
 import DeleteIcon from '@material-ui/icons/Delete';
 import {useAuth} from "../../Utilities/Auth";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
 
 const test_goods = [
     {
@@ -59,6 +63,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
         group_id: '',
     };
     const [data, setData] = React.useState(idata || defaultData);
+    const [groups, setGroups] = React.useState([{id: 1, name: 'hello'},{id: 2, name: 'lol'}]);
     const [errors, setErrors] = React.useState({});
     const {token} = useAuth();
 
@@ -66,6 +71,12 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
 
     React.useEffect(() => {
         setData(idata || defaultData);
+
+        coreRequest().get('groups')
+            .then(response => {
+                setGroups(response.body || [])
+            })
+            .catch(console.error);
     }, [idata]);
 
     function handleCheckFields() {
@@ -197,16 +208,30 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                         helperText={errors.price && errors.price}
                     />
                 </ListItem>
+                {/*<ListItem>*/}
+                {/*    <TextField*/}
+                {/*        fullWidth*/}
+                {/*        label={'Group'}*/}
+                {/*        name={'group_id'}*/}
+                {/*        value={data.group_id}*/}
+                {/*        onChange={handleInput}*/}
+                {/*        error={errors.group_id}*/}
+                {/*        helperText={errors.group_id && errors.group_id}*/}
+                {/*    />*/}
+                {/*</ListItem>*/}
                 <ListItem>
-                    <TextField
-                        fullWidth
-                        label={'Group'}
-                        name={'group_id'}
-                        value={data.group_id}
-                        onChange={handleInput}
-                        error={errors.group_id}
-                        helperText={errors.group_id && errors.group_id}
-                    />
+                    <FormControl fullWidth>
+                        <InputLabel id="demo-controlled-open-select-label">Group</InputLabel>
+                        <Select
+                            labelId="demo-simple-select-label"
+                            id="demo-simple-select"
+                            value={data.group_id}
+                            onChange={handleInput}
+                            name={'group_id'}
+                        >
+                            {groups.map(item => <MenuItem key={`group-${item.id}-${item.name}`} value={item.id}>{item.name}</MenuItem>)}
+                        </Select>
+                    </FormControl>
                 </ListItem>
             </List>
             <ListItem>
