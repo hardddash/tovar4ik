@@ -23,6 +23,9 @@ export const useStyles = makeStyles((theme) => ({
     menuButton: {
         marginRight: theme.spacing(2),
     },
+    signOutButton: {
+        marginRight: theme.spacing(2),
+    },
     hide: {
         display: 'none',
     },

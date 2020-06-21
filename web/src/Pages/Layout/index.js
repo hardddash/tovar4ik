@@ -14,7 +14,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import {useStyles} from "./styles";
 import Route from "react-router-dom/es/Route";
 import Auth from "../Auth";
@@ -22,7 +21,10 @@ import {Switch} from 'react-router-dom'
 import Goods from "../Goods";
 import {useChangeRoute} from "routing-manager";
 import {useAuth} from "../../Utilities/Auth";
+import Groups from "../Groups";
+import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Grid from "@material-ui/core/Grid";
+
 
 function PagesSwitch() {
     return (
@@ -31,7 +33,7 @@ function PagesSwitch() {
                 <Goods/>
             </Route>
             <Route path={"/groups"}>
-
+                <Groups />
             </Route>
             <Route path={"/login"}>
                 <Auth/>
@@ -54,8 +56,7 @@ export default function Layout() {
     const classes = useStyles();
     const [drawerOpened, setDrawerOpened] = React.useState(true);
     const {changeRoute} = useChangeRoute();
-    const {user, token} = useAuth();
-    console.log("This is token",token);
+    const {user, token, setToken} = useAuth();
     if (!token) {
         return (
             <Grid container justify={"center"} style={{height: '100vh'}}>
@@ -90,6 +91,13 @@ export default function Layout() {
                     <Typography variant="h6" noWrap>
                         Persistent drawer
                     </Typography>
+                    <IconButton
+                        className={clsx(classes.signOutButton)}
+                        color={"inherit"}
+                        onClick={() => setToken(null)}
+                    >
+                        <ExitToAppIcon />
+                    </IconButton>
                 </Toolbar>
             </AppBar>
             <Drawer
@@ -109,6 +117,7 @@ export default function Layout() {
                 <Divider/>
                 <List>
                     <PanelButton label={'Goods'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'goods'})}/>
+                    <PanelButton label={'Groups'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'groups'})}/>
                 </List>
             </Drawer>
             <main
