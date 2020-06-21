@@ -23,6 +23,7 @@ import {useChangeRoute} from "routing-manager";
 import {useAuth} from "../../Utilities/Auth";
 import Groups from "../Groups";
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
+import Grid from "@material-ui/core/Grid";
 
 
 function PagesSwitch() {
