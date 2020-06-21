@@ -11,8 +11,6 @@ import TableBody from '@material-ui/core/TableBody';
 import IconButton from "@material-ui/core/IconButton";
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
-import InputBase from "@material-ui/core/InputBase";
-import SearchIcon from '@material-ui/icons/Search';
 import Box from "@material-ui/core/Box";
 import clsx from "clsx";
 import Dialog from "@material-ui/core/Dialog";
@@ -27,24 +25,16 @@ import {useConfirmDialog} from "../../Utilities/ConfirmDialog";
 import DeleteIcon from '@material-ui/icons/Delete';
 import {useAuth} from "../../Utilities/Auth";
 
-const test_goods = [
+const test_roups = [
     {
         id: 1,
         name: 'dasha',
         description: 'girl',
-        producer: 'mama',
-        price: '2000',
-        quantity: '123',
-        group_id: 1,
     },
     {
         id: 3,
         name: 'pasha',
         description: 'girl',
-        producer: 'mama',
-        price: '2000',
-        quantity: '123',
-        group_id: 1,
     }
 ]
 
@@ -53,16 +43,12 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     const defaultData = {
         name: '',
         description: '',
-        producer: '',
-        quantity: '',
-        price: '',
-        group_id: '',
     };
     const [data, setData] = React.useState(idata || defaultData);
     const [errors, setErrors] = React.useState({});
     const {token} = useAuth();
 
-    const header = idata ? `Good: ${data.name}` : 'Good: New good';
+    const header = idata ? `Group: ${data.name}` : 'Group: New group';
 
     React.useEffect(() => {
         setData(idata || defaultData);
@@ -88,20 +74,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             }
         }
 
-        function checkNumber(fields) {
-            for (const key of fields) {
-                const item = data[key];
-                if (isNaN(+item)) {
-                    if (!newerrors[key]) sfe(key, `Field must be numeric type`);
-                    noError = false;
-                } else {
-                    if (newerrors[key] === `Field must be numeric type`) sfe(key, null);
-                }
-            }
-        }
-
-        checkEmpty(['name', 'quantity', 'price', 'group_id']);
-        checkNumber(['quantity', 'price', 'group_id']);
+        checkEmpty(['name']);
         setErrors(newerrors);
         return noError;
     }
@@ -110,7 +83,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
         if (!handleCheckFields()) return;
 
         coreRequest()
-            .post('goods')
+            .post('groups')
             .send(data)
             .set('token', token)
             .then(response => {
@@ -122,7 +95,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
 
     function handleEdit() {
         coreRequest()
-            .put('good')
+            .put('group')
             .send(data)
             .query({id: +idata.id})
             .set('token', token)
@@ -164,50 +137,6 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                         helperText={errors.description && errors.description}
                     />
                 </ListItem>
-                <ListItem>
-                    <TextField
-                        fullWidth
-                        label={'Producer'}
-                        name={'producer'}
-                        value={data.producer}
-                        onChange={handleInput}
-                        error={errors.producer}
-                        helperText={errors.producer && errors.producer}
-                    />
-                </ListItem>
-                <ListItem>
-                    <TextField
-                        fullWidth
-                        label={'Quantity'}
-                        name={'quantity'}
-                        value={data.quantity}
-                        onChange={handleInput}
-                        error={errors.quantity}
-                        helperText={errors.quantity && errors.quantity}
-                    />
-                </ListItem>
-                <ListItem>
-                    <TextField
-                        fullWidth
-                        label={'Price'}
-                        name={'price'}
-                        value={data.price}
-                        onChange={handleInput}
-                        error={errors.price}
-                        helperText={errors.price && errors.price}
-                    />
-                </ListItem>
-                <ListItem>
-                    <TextField
-                        fullWidth
-                        label={'Group'}
-                        name={'group_id'}
-                        value={data.group_id}
-                        onChange={handleInput}
-                        error={errors.group_id}
-                        helperText={errors.group_id && errors.group_id}
-                    />
-                </ListItem>
             </List>
             <ListItem>
                 <ButtonGroup fullWidth variant={'text'}>
@@ -223,8 +152,8 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     );
 }
 
-export default function Goods() {
-    const [goods, setGoods] = React.useState([]);
+export default function Groups() {
+    const [groups, setGroups] = React.useState([]);
     const [rowId, setRowId] = React.useState(0);
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
     const [search, setSearch] = React.useState('');
@@ -235,26 +164,21 @@ export default function Goods() {
 
     function handleUpdate() {
         coreRequest()
-            .get(`goods`)
-            .query({query: search ? search : undefined})
+            .get(`groups`)
             .set('token', token)
             .then(response => {
-                setGoods(response.body);
+                setGroups(response.body);
             })
             .catch(console.error);
     }
 
     function handleDelete() {
         coreRequest()
-            .delete(`good`)
+            .delete(`group`)
             .query({id: rowId})
             .set('token', token)
             .then()
             .catch(console.error);
-    }
-
-    function handleSearchInput(event) {
-        setSearch(event.target.value);
     }
 
     React.useEffect(() => {
@@ -262,10 +186,10 @@ export default function Goods() {
     }, []);
 
     React.useEffect(() => {
-        if (goods.length) {
-            setRowId(goods[0] && goods[0].id);
+        if (groups.length) {
+            setRowId(groups[0] && groups[0].id);
         }
-    }, [goods]);
+    }, [groups]);
 
     return (
         <React.Fragment>
@@ -273,38 +197,16 @@ export default function Goods() {
                 <Grid item xs={12}>
                     <Paper>
                         <Box p={1}>
-                            <div style={{display: 'flex', justifyContent: 'flex-end'}}>
-                                <div style={{display: 'inline-block'}}>
-                                    <InputBase
-                                        className={classes.input}
-                                        placeholder="Search good"
-                                        inputProps={{'aria-label': 'search google maps'}}
-                                        onChange={handleSearchInput}
-                                        value={search}
-                                    />
-                                    <IconButton
-                                        className={classes.iconButton}
-                                        aria-label="search"
-                                        onClick={handleUpdate}
-                                    >
-                                        <SearchIcon/>
-                                    </IconButton>
-                                </div>
-                            </div>
-
                             <TableContainer>
                                 <Table className={classes.table} aria-label="simple table" size={"small"}>
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Name</TableCell>
-                                            <TableCell align="right">Description</TableCell>
-                                            <TableCell align="right">Price</TableCell>
-                                            <TableCell align="right">Producer</TableCell>
-                                            <TableCell align="right">Quantity</TableCell>
+                                            <TableCell align="left">Description</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {goods.map((item) => (
+                                        {groups.map((item) => (
                                             <TableRow
                                                 key={`table-item-${item.id}`}
                                                 className={clsx(item.id === rowId && classes.activeTable)}
@@ -313,10 +215,7 @@ export default function Goods() {
                                                 <TableCell component="th" scope="row">
                                                     {item.name}
                                                 </TableCell>
-                                                <TableCell align="right">{item.description}</TableCell>
-                                                <TableCell align="right">{item.price}</TableCell>
-                                                <TableCell align="right">{item.producer}</TableCell>
-                                                <TableCell align="right">{item.quantity}</TableCell>
+                                                <TableCell align="left">{item.description}</TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -330,12 +229,12 @@ export default function Goods() {
                             </IconButton>
                             <IconButton
                                 onClick={event => setDataDialogOpen(true)}
-                                disabled={!goods.length}
+                                disabled={!groups.length}
                             >
                                 <EditIcon/>
                             </IconButton>
                             <IconButton
-                                disabled={!goods.length}
+                                disabled={!groups.length}
                                 onClick={event => confirm(handleDelete, {title: `Are you sure you want delete good`})}>
                                 <DeleteIcon/>
                             </IconButton>
@@ -345,7 +244,7 @@ export default function Goods() {
             </Grid>
             <DataDialogEditor
                 open={dataDialogOpen}
-                idata={isNewRow ? undefined : goods.find(item => item.id === rowId)}
+                idata={isNewRow ? undefined : groups.find(item => item.id === rowId)}
                 onClose={() => {
                     setDataDialogOpen(false);
                     setIsNewRow(false);

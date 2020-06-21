@@ -50,19 +50,6 @@ export default function Auth({
             .catch(error => {
                 console.error(error)
             });
-
-        /*
-            superagent.post('http://localhost:80/login')
-            .set("accept","application/json")
-            .send(data)
-            .then(response => {
-                            console.log(response);
-             })
-             .catch(error => {
-                 console.error(error)
-              });
-
-         */
     }
 
     function handleChangePassword(event) {
