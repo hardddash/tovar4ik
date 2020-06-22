@@ -67,10 +67,11 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     const [errors, setErrors] = React.useState({});
     const {token} = useAuth();
 
-    const header = idata ? `Good: ${data.name}` : 'Good: New good';
+    const header = idata ? `Good: ${data&&data.name}` : 'Good: New good';
 
     React.useEffect(() => {
         setData(idata || defaultData);
+        setErrors({});
 
         coreRequest().get('groups')
             .then(response => {
@@ -125,28 +126,37 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             .send(data)
             .set('token', token)
             .then(response => {
-                onClose && onClose();
+                onFinish && onFinish();
             })
             .catch(console.error);
-        onFinish && onFinish();
+
     }
 
     function handleEdit() {
+    if (!handleCheckFields()) return;
         coreRequest()
             .put('good')
             .send(data)
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
-                onClose && onClose();
+            console.log(response);
+                onFinish && onFinish();
             })
             .catch(console.error);
-        onFinish && onFinish();
+
     }
 
     function handleInput(event) {
+        function makeInt(obj,keys){
+            for(const key of keys){
+                const item = obj[key];
+                obj = {...obj, [key]: +item || item};
+            }
+            return obj;
+        }
         event.persist();
-        setData(last => ({...last, [event.target.name]: event.target.value}));
+        setData(last => makeInt({...last, [event.target.name]: event.target.value}, ["quantity","price","group_id"]));
     }
 
     return (
@@ -208,17 +218,6 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                         helperText={errors.price && errors.price}
                     />
                 </ListItem>
-                {/*<ListItem>*/}
-                {/*    <TextField*/}
-                {/*        fullWidth*/}
-                {/*        label={'Group'}*/}
-                {/*        name={'group_id'}*/}
-                {/*        value={data.group_id}*/}
-                {/*        onChange={handleInput}*/}
-                {/*        error={errors.group_id}*/}
-                {/*        helperText={errors.group_id && errors.group_id}*/}
-                {/*    />*/}
-                {/*</ListItem>*/}
                 <ListItem>
                     <FormControl fullWidth>
                         <InputLabel id="demo-controlled-open-select-label">Group</InputLabel>
@@ -274,7 +273,7 @@ export default function Goods() {
             .delete(`good`)
             .query({id: rowId})
             .set('token', token)
-            .then()
+            .then(response => handleUpdate())
             .catch(console.error);
     }
 

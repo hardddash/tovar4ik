@@ -87,23 +87,24 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             .send(data)
             .set('token', token)
             .then(response => {
-                onClose && onClose();
+                console.log(response);
+                onFinish && onFinish();
             })
             .catch(console.error);
-        onFinish && onFinish();
+
     }
 
     function handleEdit() {
         coreRequest()
-            .put('group')
+            .put('groups')
             .send(data)
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
-                onClose && onClose();
+                console.log(response);
+                onFinish && onFinish();
             })
             .catch(console.error);
-        onFinish && onFinish();
     }
 
     function handleInput(event) {
@@ -167,17 +168,19 @@ export default function Groups() {
             .get(`groups`)
             .set('token', token)
             .then(response => {
-                setGroups(response.body);
+            console.log(response.body);
+                setGroups(response.body || []);
             })
             .catch(console.error);
     }
 
     function handleDelete() {
         coreRequest()
-            .delete(`group`)
+            .delete(`groups`)
             .query({id: rowId})
             .set('token', token)
-            .then()
+            .then(response => handleUpdate()
+            )
             .catch(console.error);
     }
 

@@ -87,7 +87,6 @@ public class LoginHandler implements HttpHandler {
 
             } else {
                 ex.sendResponseHeaders(401, 0);
-
             }
 
             // rs.close();
@@ -144,6 +143,9 @@ public class LoginHandler implements HttpHandler {
 
         } catch (NullPointerException e) {
             System.err.println(e.getMessage());
+        } finally {
+            exchange.getResponseBody().close();
+            exchange.close();
         }
 
     }
