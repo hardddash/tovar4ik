@@ -12,11 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class StatisticsHandler implements HttpHandler {
-    /*
-    select sum(total) from(
-    select price*quantity as total from goods where group_id=2
-    ) as counted limit 1
-     */
+
     protected Connection db;
 
     public StatisticsHandler(Connection db) {
@@ -80,6 +76,8 @@ public class StatisticsHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
+        System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
+
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
@@ -90,6 +88,7 @@ public class StatisticsHandler implements HttpHandler {
         }
         String method = exchange.getRequestMethod();
 
+
         if (!new Auth().authenticate(exchange)) {
             exchange.sendResponseHeaders(401, -1);
             exchange.getResponseBody().close();
@@ -98,7 +97,6 @@ public class StatisticsHandler implements HttpHandler {
                 switch (method) {
                     case "GET":
                         statistics(exchange);
-
                 }
             } catch (SQLException e) {
 

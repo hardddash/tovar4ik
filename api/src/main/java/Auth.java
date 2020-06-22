@@ -22,7 +22,6 @@ public class Auth {
 
             if (token == null)
                 throw new JwtException("Wrong token");
-            // Jwts.parser().setSigningKey(signingKey).parseClaimsJws(token);
 
             Claims claims = this.decodeJWT(token);
 
@@ -35,7 +34,6 @@ public class Auth {
     }
 
     public static Claims decodeJWT(String jwt) {
-        //This line will throw an exception if it is not a signed JWS (as expected)
         Claims claims = Jwts.parser()
                 .setSigningKey(signingKey)
                 .parseClaimsJws(jwt).getBody();

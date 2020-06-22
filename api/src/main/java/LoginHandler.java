@@ -25,6 +25,7 @@ public class LoginHandler implements HttpHandler {
 
     private boolean checkUser(String username, String pass) {
         try {
+            System.out.println("SQL request: SELECT * FROM users WHERE username = " + username + " AND pass = " + pass);
             PreparedStatement preparedStatement = db.prepareStatement("SELECT * FROM users WHERE username = ? AND pass = ?");
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, pass);
@@ -41,8 +42,6 @@ public class LoginHandler implements HttpHandler {
 
         try {
             InputStream bodyStream = ex.getRequestBody();
-            // byte[] stream = new byte[bodyStream.available()];
-            //bodyStream.read(stream,0,bodyStream.available());
 
             int ch;
             StringBuilder sb = new StringBuilder();
@@ -53,6 +52,7 @@ public class LoginHandler implements HttpHandler {
             JsonReader jsonReader = Json.createReader(new StringReader(jsonString));
             JsonObject reply = jsonReader.readObject();
             String username = reply.getString("username");
+            System.out.println("trying to login user: " + username);
             String password = reply.getString("password");
             if (username == null || password == null) {
                 ex.sendResponseHeaders(401, 0);
@@ -60,8 +60,6 @@ public class LoginHandler implements HttpHandler {
                 return;
             }
 
-
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
 
             Date expiration_time = new Date();
@@ -72,13 +70,10 @@ public class LoginHandler implements HttpHandler {
 
 
             if (checkUser(username, password)) {
-                //SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-                //byte[] apiKeySecretBytes = DatatypeConverter.parseBase64Binary(Auth.SECRET_KEY);
-                //Key signingKey = new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
+                System.out.println("logged in user: " + username);
                 JwtBuilder builder = Jwts.builder()
                         .setIssuedAt(expiration_time)
                         .setSubject(username)
-                        //.setIssuer("2")
                         .signWith(Auth.signatureAlgorithm, Auth.signingKey);
                 String jwt = builder.compact();
 
@@ -88,8 +83,6 @@ public class LoginHandler implements HttpHandler {
             } else {
                 ex.sendResponseHeaders(401, 0);
             }
-
-            // rs.close();
             st.close();
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -119,6 +112,8 @@ public class LoginHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
+        System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
+
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
@@ -130,7 +125,6 @@ public class LoginHandler implements HttpHandler {
 
         String method = exchange.getRequestMethod();
 
-        //Map<String, String> params = queryToMap(exchange.getRequestURI().getQuery());
         try {
             switch (method) {
                 case "POST":

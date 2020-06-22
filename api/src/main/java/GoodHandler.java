@@ -50,12 +50,12 @@ public class GoodHandler implements HttpHandler {
 
 
         try {
-            System.out.println("Trying to reach database");
+
             Statement st = this.db.createStatement();
             ResultSet rs;
 
             String good_id = params.get("id").toString();
-            System.out.println("SELECT * FROM goods WHERE id =" + good_id);
+            System.out.println("SQL request: SELECT * FROM goods WHERE id = " + good_id);
             rs = executeQuery(st, "SELECT * FROM goods WHERE id = " + good_id);
             rs.next();
             int id = rs.getInt("id");
@@ -89,11 +89,10 @@ public class GoodHandler implements HttpHandler {
         if (this.db == null) throw new NullPointerException("Error: db can't be null");
 
         try {
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
 
             String good_id = params.get("id").toString();
-            System.out.println("DELETE * FROM goods WHERE id =" + good_id);
+            System.out.println("SQL request: DELETE FROM goods WHERE id =" + good_id);
             executeQuery(st, "DELETE FROM goods WHERE id = " + good_id);
 
             ex.sendResponseHeaders(200, -1);
@@ -141,7 +140,6 @@ public class GoodHandler implements HttpHandler {
         JsonObject reply = jsonReader.readObject();
 
         try {
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
 
             String good_id = params.get("id").toString();
@@ -159,10 +157,9 @@ public class GoodHandler implements HttpHandler {
             }
 
             dbRequest += " WHERE id =" + good_id;
-            System.out.println(dbRequest);
+            System.out.println("SQL request: " + dbRequest);
 
             executeQuery(st, dbRequest);
-            System.out.println("Good is edited");
             st.close();
             ex.sendResponseHeaders(200, 0);
         } catch (PSQLException e) {
@@ -213,6 +210,8 @@ public class GoodHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
+        System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
+
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
         if (exchange.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
@@ -223,6 +222,7 @@ public class GoodHandler implements HttpHandler {
         }
 
         String method = exchange.getRequestMethod();
+
         if (!new Auth().authenticate(exchange)) {
             exchange.sendResponseHeaders(401, -1);
             exchange.getResponseBody().close();

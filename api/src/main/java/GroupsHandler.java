@@ -55,13 +55,14 @@ public class GroupsHandler implements HttpHandler {
         ArrayList<Group> groups = new ArrayList<>();
 
         try {
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
             ResultSet rs;
             if (params == null) {
+                System.out.println("SQL request: SELECT * FROM groups order by groups.id");
                 rs = st.executeQuery("SELECT * FROM groups order by groups.id");
             } else {
                 String group_id = params.get("id").toString();
+                System.out.println("SQL request: SELECT * FROM groups WHERE id =" + group_id + " order by groups.id");
                 rs = st.executeQuery("SELECT * FROM groups WHERE id =" + group_id + " order by groups.id");
             }
             while (rs.next()) {
@@ -92,11 +93,10 @@ public class GroupsHandler implements HttpHandler {
         if (this.db == null) throw new NullPointerException("Error: db can't be null");
 
         try {
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
 
             String group_id = params.get("id").toString();
-            System.out.println("DELETE FROM groups WHERE id = " + group_id);
+            System.out.println("SQL request: DELETE FROM groups WHERE id = " + group_id);
             ResultSet rs = st.executeQuery("DELETE FROM groups WHERE id = " + group_id);
 
             ex.sendResponseHeaders(200, -1);
@@ -156,11 +156,11 @@ public class GroupsHandler implements HttpHandler {
         try {
             String name = reply.getString("name");
             String description = reply.getString("description");
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
+            System.out.println("SQL request: insert into groups(id, name, description) values (nextval('groups_sequence'),'"
+                    + name + "','" + description + "');");
             ResultSet rs = st.executeQuery("insert into groups(id, name, description) values (nextval('groups_sequence'),'"
                     + name + "','" + description + "');");
-            System.out.println("New group is created");
             rs.close();
             st.close();
             ex.sendResponseHeaders(201, 0);
@@ -216,7 +216,6 @@ public class GroupsHandler implements HttpHandler {
         JsonObject reply = jsonReader.readObject();
 
         try {
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
 
             String group_id = params.get("id").toString();
@@ -230,10 +229,10 @@ public class GroupsHandler implements HttpHandler {
             }
 
             dbRequest += " WHERE id =" + group_id;
-            System.out.println(dbRequest);
+
+            System.out.println("SQL request: " + dbRequest);
 
             executeQuery(st, dbRequest);
-            System.out.println("Group is edited");
             ex.sendResponseHeaders(200, 0);
             ex.getResponseBody().close();
             st.close();
@@ -284,6 +283,8 @@ public class GroupsHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
 
+        System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
+
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
         exchange.getResponseHeaders().add("Content-Type", "application/json; charset=UTF-8");
 
@@ -295,6 +296,7 @@ public class GroupsHandler implements HttpHandler {
         }
 
         String method = exchange.getRequestMethod();
+
 
         if (!new Auth().authenticate(exchange)) {
             exchange.sendResponseHeaders(401, -1);

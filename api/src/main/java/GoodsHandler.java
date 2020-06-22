@@ -43,17 +43,18 @@ public class GoodsHandler implements HttpHandler {
         ArrayList<Good> goods = new ArrayList<>();
 
         try {
-            System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
             ResultSet rs;
             if (params == null) {
+                System.out.println("SQL request: SELECT * FROM goods order by goods.id");
                 rs = st.executeQuery("SELECT * FROM goods order by goods.id");
             } else if (params.get("query") != null) {
                 String query = params.get("query").toString();
-                System.out.println("SELECT * FROM goods WHERE name LIKE '%" + query + "%' ");
+                System.out.println("SQL request: SELECT * FROM goods WHERE name LIKE '%" + query + "%' ");
                 rs = st.executeQuery("SELECT * FROM goods WHERE name LIKE '%" + query + "%'");
             } else {
                 String id = params.get("group_id").toString();
+                System.out.println("SQL request: SELECT * FROM goods WHERE group_id =" + id + " order by goods.id");
                 rs = st.executeQuery("SELECT * FROM goods WHERE group_id =" + id + " order by goods.id");
             }
             while (rs.next()) {
@@ -70,11 +71,9 @@ public class GoodsHandler implements HttpHandler {
             ObjectMapper mapper = new ObjectMapper();
             String response = mapper.writeValueAsString(goods);
 
-
             ex.sendResponseHeaders(200, response.length());
             OutputStream os = ex.getResponseBody();
             os.write(response.getBytes());
-            System.out.println("finished");
 
             rs.close();
             st.close();
@@ -119,11 +118,13 @@ public class GoodsHandler implements HttpHandler {
             int quantity = reply.getInt("quantity");
             double price = reply.getJsonNumber("price").doubleValue();
             int group_id = reply.getInt("group_id");
-            System.out.println("Trying to reach database");
+
             Statement st = this.db.createStatement();
+            System.out.println("SQL request: insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_sequence'),'"
+                    + name + "','" + description + "','" + producer + "'," + quantity + "," + price + "," + group_id + ");");
             ResultSet rs = st.executeQuery("insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_sequence'),'"
                     + name + "','" + description + "','" + producer + "'," + quantity + "," + price + "," + group_id + ");");
-            System.out.println("New good is created");
+
             rs.close();
             st.close();
             ex.sendResponseHeaders(201, 0);
@@ -178,6 +179,8 @@ public class GoodsHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+
+        System.out.println(exchange.getRequestMethod() + " " + exchange.getRequestURI());
 
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "http://localhost:3000");
         exchange.getResponseHeaders().add("Content-Type", "application/json; charset=UTF-8");
