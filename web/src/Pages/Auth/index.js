@@ -42,13 +42,17 @@ export default function Auth({
         coreRequest().post('login')
             .send(data)
             .then(response => {
-                console.log(response);
-                console.log(response.text);
-                //setUser({...response.body, token: undefined});
                 setToken(response.text);
+                setError(null)
             })
             .catch(error => {
-                console.error(error)
+                switch(error.status) {
+                    case 401:
+                        setError('Invalid username or password');
+                        break;
+                    default:
+                        setError('Unrecognized error');
+                }
             });
     }
 

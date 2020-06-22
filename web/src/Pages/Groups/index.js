@@ -73,7 +73,6 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             .send(data)
             .set('token', token)
             .then(response => {
-                console.log(response);
                 onFinish && onFinish();
             })
             .catch(console.error);
@@ -87,7 +86,6 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
-                console.log(response);
                 onFinish && onFinish();
             })
             .catch(console.error);
@@ -156,7 +154,6 @@ export default function Groups() {
             .get(`groups`)
             .set('token', token)
             .then(response => {
-            console.log(response.body);
                 setGroups(response.body || []);
             })
             .catch(console.error);
@@ -167,8 +164,7 @@ export default function Groups() {
             .delete(`groups`)
             .query({id: rowId})
             .set('token', token)
-            .then(response => handleUpdate()
-            )
+            .then(response => handleUpdate())
             .catch(console.error);
     }
 
