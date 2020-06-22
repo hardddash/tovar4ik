@@ -58,17 +58,17 @@ export default function Layout() {
     const {changeRoute} = useChangeRoute();
     const {user, token, setToken} = useAuth();
 
-    // if (!token) {
-    //     return (
-    //         <Grid container justify={"center"} style={{height: '100vh'}}>
-    //             <div className={classes.loginContainer}>
-    //                 <div>
-    //                     <Auth label={<Typography variant={'h5'}> Login </Typography>}/>
-    //                 </div>
-    //             </div>
-    //         </Grid>
-    //     );
-    // }
+    if (!token) {
+        return (
+            <Grid container justify={"center"} style={{height: '100vh'}}>
+                <div className={classes.loginContainer}>
+                    <div>
+                        <Auth label={<Typography variant={'h5'}> Login </Typography>}/>
+                    </div>
+                </div>
+            </Grid>
+        );
+    }
 
     return (
         <div className={classes.root}>

@@ -8,7 +8,7 @@ import java.sql.DriverManager;
 
 public class MyHttpServer {
     private static final String USER_NAME = "postgres";
-    private static final String PASSWORD = "example";
+    private static final String PASSWORD = "postgres";
     private static final String CONNECTION_URL = "jdbc:postgresql://localhost:5432/";
 
     public static void main(String[] args) throws Exception {
