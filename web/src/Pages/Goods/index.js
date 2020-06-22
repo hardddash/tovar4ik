@@ -31,7 +31,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 
-function DataDialogEditor({onClose, onFinish, open, idata}) {
+function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
     const defaultData = {
         name: '',
         description: '',
@@ -41,11 +41,10 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
         group_id: '',
     };
     const [data, setData] = React.useState(idata || defaultData);
-    const [groups, setGroups] = React.useState([]);
     const [errors, setErrors] = React.useState({});
     const {token} = useAuth();
 
-    const header = idata ? `Good: ${data&&data.name}` : 'Good: New good';
+    const header = idata ? `Good: ${data && data.name}` : 'Good: New good';
 
     React.useEffect(() => {
         setData(idata || defaultData);
@@ -114,14 +113,14 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     }
 
     function handleEdit() {
-    if (!handleCheckFields()) return;
+        if (!handleCheckFields()) return;
         coreRequest()
             .put('good')
             .send(data)
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
-            console.log(response);
+                console.log(response);
                 onFinish && onFinish();
             })
             .catch(console.error);
@@ -129,15 +128,16 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     }
 
     function handleInput(event) {
-        function makeInt(obj,keys){
-            for(const key of keys){
+        function makeInt(obj, keys) {
+            for (const key of keys) {
                 const item = obj[key];
                 obj = {...obj, [key]: +item || item};
             }
             return obj;
         }
+
         event.persist();
-        setData(last => makeInt({...last, [event.target.name]: event.target.value}, ["quantity","price","group_id"]));
+        setData(last => makeInt({...last, [event.target.name]: event.target.value}, ["quantity", "price", "group_id"]));
     }
 
     return (
@@ -209,7 +209,8 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                             onChange={handleInput}
                             name={'group_id'}
                         >
-                            {groups.map(item => <MenuItem key={`group-${item.id}-${item.name}`} value={item.id}>{item.name}</MenuItem>)}
+                            {groups.map(item => <MenuItem key={`group-${item.id}-${item.name}`}
+                                                          value={item.id}>{item.name}</MenuItem>)}
                         </Select>
                     </FormControl>
                 </ListItem>
@@ -234,6 +235,7 @@ export default function Goods() {
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
     const [search, setSearch] = React.useState('');
     const [isNewRow, setIsNewRow] = React.useState(false);
+    const [groups, setGroups] = React.useState([]);
     const {token} = useAuth();
     const classes = useStyles();
     const confirm = useConfirmDialog();
@@ -306,24 +308,30 @@ export default function Goods() {
                                             <TableCell align="right">Price</TableCell>
                                             <TableCell align="right">Producer</TableCell>
                                             <TableCell align="right">Quantity</TableCell>
+                                            <TableCell align="right">Group</TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {goods.map((item) => (
-                                            <TableRow
-                                                key={`table-item-${item.id}`}
-                                                className={clsx(item.id === rowId && classes.activeTable)}
-                                                onClick={event => setRowId(item.id)}
-                                            >
-                                                <TableCell component="th" scope="row">
-                                                    {item.name}
-                                                </TableCell>
-                                                <TableCell align="right">{item.description}</TableCell>
-                                                <TableCell align="right">{item.price}</TableCell>
-                                                <TableCell align="right">{item.producer}</TableCell>
-                                                <TableCell align="right">{item.quantity}</TableCell>
-                                            </TableRow>
-                                        ))}
+                                        {goods.map((item) => {
+                                            const group = groups.find(element => element.id === item.group_id) || {};
+                                            const groupName = group.name || 'No group';
+                                            return (
+                                                <TableRow
+                                                    key={`table-item-${item.id}`}
+                                                    className={clsx(item.id === rowId && classes.activeTable)}
+                                                    onClick={event => setRowId(item.id)}
+                                                >
+                                                    <TableCell component="th" scope="row">
+                                                        {item.name}
+                                                    </TableCell>
+                                                    <TableCell align="right">{item.description}</TableCell>
+                                                    <TableCell align="right">{item.price}</TableCell>
+                                                    <TableCell align="right">{item.producer}</TableCell>
+                                                    <TableCell align="right">{item.quantity}</TableCell>
+                                                    <TableCell align="right">{groupName}</TableCell>
+                                                </TableRow>
+                                            )
+                                        })}
                                     </TableBody>
                                 </Table>
                             </TableContainer>
@@ -360,6 +368,8 @@ export default function Goods() {
                     handleUpdate();
                     setIsNewRow(false);
                 }}
+                groups={groups}
+                setGroups={setGroups}
             />
         </React.Fragment>
     );

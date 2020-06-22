@@ -24,6 +24,7 @@ import {useAuth} from "../../Utilities/Auth";
 import Groups from "../Groups";
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Grid from "@material-ui/core/Grid";
+import Statistics from "../Statistics";
 
 
 function PagesSwitch() {
@@ -37,6 +38,9 @@ function PagesSwitch() {
             </Route>
             <Route path={"/login"}>
                 <Auth/>
+            </Route>
+            <Route path={"/stat"}>
+                <Statistics />
             </Route>
         </Switch>
     );
@@ -119,6 +123,7 @@ export default function Layout() {
                 <List>
                     <PanelButton label={'Goods'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'goods'})}/>
                     <PanelButton label={'Groups'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'groups'})}/>
+                    <PanelButton label={'Statistics'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'stat'})}/>
                 </List>
             </Drawer>
             <main
