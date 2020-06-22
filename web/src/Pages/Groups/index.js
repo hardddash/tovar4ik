@@ -25,20 +25,6 @@ import {useConfirmDialog} from "../../Utilities/ConfirmDialog";
 import DeleteIcon from '@material-ui/icons/Delete';
 import {useAuth} from "../../Utilities/Auth";
 
-const test_roups = [
-    {
-        id: 1,
-        name: 'dasha',
-        description: 'girl',
-    },
-    {
-        id: 3,
-        name: 'pasha',
-        description: 'girl',
-    }
-]
-
-
 function DataDialogEditor({onClose, onFinish, open, idata}) {
     const defaultData = {
         name: '',

@@ -121,7 +121,7 @@ public class GoodsHandler implements HttpHandler {
             int group_id = reply.getInt("group_id");
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_seq'),'"
+            ResultSet rs = st.executeQuery("insert into goods(id, name, description, producer, quantity, price, group_id) values (nextval('goods_sequence'),'"
                     + name + "','" + description + "','" + producer + "'," + quantity + "," + price + "," + group_id + ");");
             System.out.println("New good is created");
             rs.close();

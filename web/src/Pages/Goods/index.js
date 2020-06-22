@@ -31,28 +31,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 
-const test_goods = [
-    {
-        id: 1,
-        name: 'dasha',
-        description: 'girl',
-        producer: 'mama',
-        price: '2000',
-        quantity: '123',
-        group_id: 1,
-    },
-    {
-        id: 3,
-        name: 'pasha',
-        description: 'girl',
-        producer: 'mama',
-        price: '2000',
-        quantity: '123',
-        group_id: 1,
-    }
-]
-
-
 function DataDialogEditor({onClose, onFinish, open, idata}) {
     const defaultData = {
         name: '',
@@ -63,7 +41,7 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
         group_id: '',
     };
     const [data, setData] = React.useState(idata || defaultData);
-    const [groups, setGroups] = React.useState([{id: 1, name: 'hello'},{id: 2, name: 'lol'}]);
+    const [groups, setGroups] = React.useState([]);
     const [errors, setErrors] = React.useState({});
     const {token} = useAuth();
 
@@ -72,13 +50,16 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     React.useEffect(() => {
         setData(idata || defaultData);
         setErrors({});
+    }, [idata]);
 
+    React.useEffect(() => {
         coreRequest().get('groups')
+            .set('token', token)
             .then(response => {
                 setGroups(response.body || [])
             })
             .catch(console.error);
-    }, [idata]);
+    }, [idata, open]);
 
     function handleCheckFields() {
         let noError = true;

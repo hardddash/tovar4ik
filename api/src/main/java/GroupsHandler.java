@@ -158,7 +158,7 @@ public class GroupsHandler implements HttpHandler {
             String description = reply.getString("description");
             System.out.println("Trying to reach database");
             Statement st = this.db.createStatement();
-            ResultSet rs = st.executeQuery("insert into groups(id, name, description) values (nextval('groups_seq'),'"
+            ResultSet rs = st.executeQuery("insert into groups(id, name, description) values (nextval('groups_sequence'),'"
                     + name + "','" + description + "');");
             System.out.println("New group is created");
             rs.close();
