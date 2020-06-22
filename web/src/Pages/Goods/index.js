@@ -30,6 +30,8 @@ import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
+import Typography from "@material-ui/core/Typography";
+
 
 function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
     const defaultData = {
@@ -40,15 +42,18 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
         price: '',
         group_id: '',
     };
+    const [backendError,setBackendError] = React.useState("");
     const [data, setData] = React.useState(idata || defaultData);
     const [errors, setErrors] = React.useState({});
-    const {token} = useAuth();
+    const {token, setToken} = useAuth();
+    const classes = useStyles();
 
     const header = idata ? `Good: ${data && data.name}` : 'Good: New good';
 
     React.useEffect(() => {
         setData(idata || defaultData);
         setErrors({});
+        setBackendError(null);
     }, [idata]);
 
     React.useEffect(() => {
@@ -106,10 +111,22 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
             .send(data)
             .set('token', token)
             .then(response => {
+            setBackendError(null);
                 onFinish && onFinish();
             })
-            .catch(console.error);
-
+            .catch(error => {
+                switch(error.status){
+                    case 401:
+                        setToken(null);
+                        break;
+                    case 409:
+                        setBackendError("Good's name already exists");
+                        break;
+                    default:
+                        setBackendError("Error");
+                        break;
+                }
+            });
     }
 
     function handleEdit() {
@@ -120,9 +137,23 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
+            setBackendError(null);
                 onFinish && onFinish();
             })
-            .catch(console.error);
+           .catch(error => {
+               switch(error.status){
+                   case 401:
+                       setToken(null);
+                       break;
+                   case 409:
+                       setBackendError("Good's name already exists");
+                       break;
+                   default:
+                       setBackendError("Error");
+                       break;
+               }
+           });
+
 
     }
 
@@ -143,6 +174,13 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
         <Dialog onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
             <DialogTitle id="simple-dialog-title">{header}</DialogTitle>
             <List>
+              {backendError&&
+                <ListItem>
+                    <Typography className = {classes.error}>
+                        {backendError}
+                    </Typography>
+                </ListItem>
+                }
                 <ListItem>
                     <TextField
                         fullWidth
@@ -231,13 +269,14 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
 }
 
 export default function Goods() {
+
     const [goods, setGoods] = React.useState([]);
     const [rowId, setRowId] = React.useState(0);
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
     const [search, setSearch] = React.useState('');
     const [isNewRow, setIsNewRow] = React.useState(false);
     const [groups, setGroups] = React.useState([]);
-    const {token} = useAuth();
+    const {token,setToken} = useAuth();
     const classes = useStyles();
     const confirm = useConfirmDialog();
 
@@ -249,7 +288,16 @@ export default function Goods() {
             .then(response => {
                 setGoods(response.body);
             })
-            .catch(console.error);
+            .catch(error => {
+                switch(error.message){
+                    case 401:
+                        setToken(null);
+                        break;
+                    default:
+                        break;
+                }
+            });
+
     }
 
     function handleDelete() {
@@ -258,7 +306,15 @@ export default function Goods() {
             .query({id: rowId})
             .set('token', token)
             .then(response => handleUpdate())
-            .catch(console.error);
+            .catch(error => {
+                switch(error.message){
+                    case 401:
+                        setToken(null);
+                        break;
+                    default:
+                        break;
+                }
+            });
     }
 
     function handleSearchInput(event) {

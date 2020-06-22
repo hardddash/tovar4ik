@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) Daria Harashchuk
+ * email: daria.harashchuk@gmail.com
+ * github: https://github.com/hardddash
+ * 2020.
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;

@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) Daria Harashchuk
+ * email: daria.harashchuk@gmail.com
+ * github: https://github.com/hardddash
+ * 2020.
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -78,17 +85,10 @@ public class GoodsHandler implements HttpHandler {
             rs.close();
             st.close();
 
-
         } catch (Exception e) {
             System.err.println(e.getMessage());
-        }finally{
-            try {
-                ex.getResponseBody().close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
+        }
     }
 
     public void createGood(HttpExchange ex) {
@@ -131,7 +131,6 @@ public class GoodsHandler implements HttpHandler {
         } catch (NumberFormatException e) {
             try {
                 ex.sendResponseHeaders(406, -1);
-                ex.getResponseBody().close();
             } catch (IOException exc) {
                 exc.printStackTrace();
             }
@@ -140,27 +139,18 @@ public class GoodsHandler implements HttpHandler {
                 switch (e.getSQLState()) {
                     case "02000":
                         ex.sendResponseHeaders(201, -1);
-                        ex.getResponseBody().close();
                         break;
                     case "23505":
                         ex.sendResponseHeaders(409, -1);
-                        ex.getResponseBody().close();
                         break;
                     default:
                         ex.sendResponseHeaders(400, -1);
-                        ex.getResponseBody().close();
                 }
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-        }finally{
-            try {
-                ex.getResponseBody().close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -215,7 +205,6 @@ public class GoodsHandler implements HttpHandler {
                 exchange.getResponseBody().close();
                 exchange.close();
             }
-
         }
     }
 }

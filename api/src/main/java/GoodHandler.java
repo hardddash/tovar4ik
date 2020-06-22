@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) Daria Harashchuk
+ * email: daria.harashchuk@gmail.com
+ * github: https://github.com/hardddash
+ * 2020.
+ */
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -96,7 +103,6 @@ public class GoodHandler implements HttpHandler {
             executeQuery(st, "DELETE FROM goods WHERE id = " + good_id);
 
             ex.sendResponseHeaders(200, -1);
-            ex.getResponseBody().close();
 
             st.close();
         } catch (PSQLException e) {
@@ -104,11 +110,9 @@ public class GoodHandler implements HttpHandler {
                 switch (e.getSQLState()) {
                     case "23505":
                         ex.sendResponseHeaders(409, -1);
-                        ex.getResponseBody().close();
                         break;
                     default:
                         ex.sendResponseHeaders(400, -1);
-                        ex.getResponseBody().close();
                 }
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
@@ -167,29 +171,18 @@ public class GoodHandler implements HttpHandler {
                 switch (e.getSQLState()) {
                     case "02000":
                         ex.sendResponseHeaders(201, -1);
-                        ex.getResponseBody().close();
                         break;
                     case "23505":
                         ex.sendResponseHeaders(409, -1);
-                        ex.getResponseBody().close();
                         break;
                     default:
                         ex.sendResponseHeaders(400, -1);
-                        ex.getResponseBody().close();
                 }
             } catch (IOException exc) {
                 System.err.println(exc.getMessage());
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-        } finally {
-            try {
-                ex.getResponseBody().close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            ex.close();
-
         }
     }
 

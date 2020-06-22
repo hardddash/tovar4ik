@@ -1,5 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import {blue} from "@material-ui/core/colors";
+import {blue,red} from "@material-ui/core/colors";
 
 export const useStyles = makeStyles({
     table: {
@@ -7,5 +7,8 @@ export const useStyles = makeStyles({
     },
     activeTable: {
         backgroundColor: blue[100],
+    },
+    error:{
+        color: red[700],
     }
 });

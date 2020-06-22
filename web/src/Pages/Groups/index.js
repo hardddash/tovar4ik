@@ -24,6 +24,7 @@ import {coreRequest} from "../../Utilities/Rest";
 import {useConfirmDialog} from "../../Utilities/ConfirmDialog";
 import DeleteIcon from '@material-ui/icons/Delete';
 import {useAuth} from "../../Utilities/Auth";
+import Typography from "@material-ui/core/Typography";
 
 function DataDialogEditor({onClose, onFinish, open, idata}) {
     const defaultData = {
@@ -32,12 +33,15 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
     };
     const [data, setData] = React.useState(idata || defaultData);
     const [errors, setErrors] = React.useState({});
-    const {token} = useAuth();
+    const {token, setToken} = useAuth();
+    const [backendError,setBackendError] = React.useState("");
+    const classes = useStyles();
 
     const header = idata ? `Group: ${data.name}` : 'Group: New group';
 
     React.useEffect(() => {
         setData(idata || defaultData);
+         setBackendError(null);
     }, [idata]);
 
     function handleCheckFields() {
@@ -73,9 +77,22 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             .send(data)
             .set('token', token)
             .then(response => {
+                setBackendError(null);
                 onFinish && onFinish();
             })
-            .catch(console.error);
+            .catch(error => {
+                switch(error.status){
+                    case 401:
+                        setToken(null);
+                        break;
+                    case 409:
+                        setBackendError("Group's name already exists");
+                        break;
+                    default:
+                        setBackendError("Error");
+                        break;
+                }
+            });
 
     }
 
@@ -86,9 +103,23 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
+                setBackendError(null);
                 onFinish && onFinish();
+
             })
-            .catch(console.error);
+            .catch(error => {
+                switch(error.status){
+                    case 401:
+                        setToken(null);
+                        break;
+                    case 409:
+                        setBackendError("Group's name already exists");
+                        break;
+                    default:
+                        setBackendError("Error");
+                        break;
+                }
+            });
     }
 
     function handleInput(event) {
@@ -100,6 +131,13 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
         <Dialog onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
             <DialogTitle id="simple-dialog-title">{header}</DialogTitle>
             <List>
+                {backendError&&
+                <ListItem>
+                    <Typography className = {classes.error}>
+                        {backendError}
+                    </Typography>
+                </ListItem>
+                }
                 <ListItem>
                     <TextField
                         fullWidth
@@ -145,7 +183,7 @@ export default function Groups() {
     const [dataDialogOpen, setDataDialogOpen] = React.useState(false);
     const [search, setSearch] = React.useState('');
     const [isNewRow, setIsNewRow] = React.useState(false);
-    const {token} = useAuth();
+    const {token, setToken} = useAuth();
     const classes = useStyles();
     const confirm = useConfirmDialog();
 
@@ -165,7 +203,15 @@ export default function Groups() {
             .query({id: rowId})
             .set('token', token)
             .then(response => handleUpdate())
-            .catch(console.error);
+            .catch(error => {
+                switch(error.message){
+                    case 401:
+                        setToken(null);
+                        break;
+                    default:
+                        break;
+                }
+            });
     }
 
     React.useEffect(() => {

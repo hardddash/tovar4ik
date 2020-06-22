@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) Daria Harashchuk
+ * email: daria.harashchuk@gmail.com
+ * github: https://github.com/hardddash
+ * 2020.
+ */
+
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import io.jsonwebtoken.JwtBuilder;
@@ -56,7 +63,6 @@ public class LoginHandler implements HttpHandler {
             String password = reply.getString("password");
             if (username == null || password == null) {
                 ex.sendResponseHeaders(401, 0);
-                ex.getResponseBody().close();
                 return;
             }
 
@@ -67,7 +73,6 @@ public class LoginHandler implements HttpHandler {
             calendar.setTime(expiration_time);
             calendar.add(Calendar.HOUR, 1);
             expiration_time = calendar.getTime();
-
 
             if (checkUser(username, password)) {
                 System.out.println("logged in user: " + username);
@@ -86,15 +91,8 @@ public class LoginHandler implements HttpHandler {
             st.close();
         } catch (Exception e) {
             System.err.println(e.getMessage());
-        } finally {
-            try {
-                ex.getResponseBody().close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
-
 
     public Map<String, String> queryToMap(String query) {
         Map<String, String> result = new HashMap<>();

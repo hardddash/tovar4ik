@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) Daria Harashchuk
+ * email: daria.harashchuk@gmail.com
+ * github: https://github.com/hardddash
+ * 2020.
+ */
+
 import com.sun.net.httpserver.*;
 
 import java.io.IOException;
