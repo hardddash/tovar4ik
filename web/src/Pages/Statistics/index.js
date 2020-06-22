@@ -39,7 +39,6 @@ export default function Statistics() {
             .query({group_id: groupId === -1 ? undefined : groupId})
             .set('token', token)
             .then(response => {
-                console.log(response);
                 setStatistics({price: response.text});
             })
             .catch(console.error);

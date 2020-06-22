@@ -120,7 +120,6 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
-                console.log(response);
                 onFinish && onFinish();
             })
             .catch(console.error);

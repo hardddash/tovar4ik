@@ -25,6 +25,7 @@ import Groups from "../Groups";
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import Grid from "@material-ui/core/Grid";
 import Statistics from "../Statistics";
+import Redirect from "react-router-dom/es/Redirect";
 
 
 function PagesSwitch() {
@@ -34,13 +35,13 @@ function PagesSwitch() {
                 <Goods/>
             </Route>
             <Route path={"/groups"}>
-                <Groups />
+                <Groups/>
             </Route>
             <Route path={"/login"}>
                 <Auth/>
             </Route>
             <Route path={"/stat"}>
-                <Statistics />
+                <Statistics/>
             </Route>
         </Switch>
     );
@@ -59,8 +60,23 @@ function PanelButton({label, onClick, icon, ...props}) {
 export default function Layout() {
     const classes = useStyles();
     const [drawerOpened, setDrawerOpened] = React.useState(true);
-    const {changeRoute} = useChangeRoute();
+    const {changeRoute, getRouteParams} = useChangeRoute();
     const {user, token, setToken} = useAuth();
+    const {panel} = getRouteParams();
+    let header_name = '';
+    switch (panel) {
+        case 'stat':
+            header_name = 'Statistcis';
+            break;
+        case 'goods':
+            header_name = 'Goods';
+            break;
+        case 'groups':
+            header_name = 'Groups';
+            break;
+        default:
+            header_name = 'Page';
+    }
 
     if (!token) {
         return (
@@ -94,14 +110,14 @@ export default function Layout() {
                         <MenuIcon/>
                     </IconButton>
                     <Typography variant="h6" noWrap>
-                        Persistent drawer
+                        {header_name}
                     </Typography>
                     <IconButton
                         className={clsx(classes.signOutButton)}
                         color={"inherit"}
                         onClick={() => setToken(null)}
                     >
-                        <ExitToAppIcon />
+                        <ExitToAppIcon/>
                     </IconButton>
                 </Toolbar>
             </AppBar>
@@ -122,8 +138,10 @@ export default function Layout() {
                 <Divider/>
                 <List>
                     <PanelButton label={'Goods'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'goods'})}/>
-                    <PanelButton label={'Groups'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'groups'})}/>
-                    <PanelButton label={'Statistics'} icon={<InboxIcon/>} onClick={event => changeRoute({panel: 'stat'})}/>
+                    <PanelButton label={'Groups'} icon={<InboxIcon/>}
+                                 onClick={event => changeRoute({panel: 'groups'})}/>
+                    <PanelButton label={'Statistics'} icon={<InboxIcon/>}
+                                 onClick={event => changeRoute({panel: 'stat'})}/>
                 </List>
             </Drawer>
             <main
@@ -132,6 +150,7 @@ export default function Layout() {
                 })}
             >
                 <div className={classes.drawerHeader}/>
+                <Redirect exact from={'/'} to={'/goods'}/>
                 <PagesSwitch/>
             </main>
         </div>
