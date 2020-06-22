@@ -103,12 +103,13 @@ public class GroupsHandler implements HttpHandler {
             Statement st = this.db.createStatement();
 
             String group_id = params.get("id").toString();
+            System.out.println("SQL request: DELETE FROM goods WHERE group_id = " + group_id);
             System.out.println("SQL request: DELETE FROM groups WHERE id = " + group_id);
-            ResultSet rs = st.executeQuery("DELETE FROM groups WHERE id = " + group_id);
+            executeQuery(st, "DELETE FROM goods WHERE group_id = " + group_id);
+            executeQuery(st, "DELETE FROM groups WHERE id = " + group_id);
 
             ex.sendResponseHeaders(200, -1);
 
-            rs.close();
             st.close();
         } catch (PSQLException e) {
             try {

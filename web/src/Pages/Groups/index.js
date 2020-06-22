@@ -268,7 +268,7 @@ export default function Groups() {
                             </IconButton>
                             <IconButton
                                 disabled={!groups.length}
-                                onClick={event => confirm(handleDelete, {title: `Are you sure you want delete good`})}>
+                                onClick={event => confirm(handleDelete, {title: `Are you sure you want delete group?`, text: 'Notice: all goods that belong to this group will be deleted'})}>
                                 <DeleteIcon/>
                             </IconButton>
                         </Box>

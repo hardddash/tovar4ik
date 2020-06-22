@@ -163,8 +163,8 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
         function makeInt(obj, keys) {
             for (const key of keys) {
                 const item = obj[key];
-                if (item[item.length] !== '.') {
-                    obj = {...obj, [key]: +item || item};
+                if (item[item.length-1] !== '.') {
+                    obj = {...obj, [key]: Math.abs(+item) || item};
                 }
             }
             return obj;
@@ -411,7 +411,7 @@ export default function Goods() {
                             </IconButton>
                             <IconButton
                                 disabled={!goods.length}
-                                onClick={event => confirm(handleDelete, {title: `Are you sure you want delete good`})}>
+                                onClick={event => confirm(handleDelete, {title: `Are you sure you want delete good?`})}>
                                 <DeleteIcon/>
                             </IconButton>
                         </Box>
