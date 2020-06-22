@@ -122,6 +122,8 @@ function DataDialogEditor({onClose, onFinish, open, idata}) {
                         onChange={handleInput}
                         error={errors.description}
                         helperText={errors.description && errors.description}
+                        multiline
+                        rowsMax={10}
                     />
                 </ListItem>
             </List>

@@ -161,6 +161,8 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
                         label={'Description'}
                         name={'description'}
                         value={data.description}
+                        multiline
+                        rowsMax={10}
                         onChange={handleInput}
                         error={errors.description}
                         helperText={errors.description && errors.description}
