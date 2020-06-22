@@ -10,5 +10,5 @@ export const useStyles = makeStyles({
     },
     error:{
         color: red[700],
-    }
+    },
 });

@@ -86,7 +86,7 @@ export default function Statistics() {
                     <Paper style={{height: '100%'}}>
                         <Box p={1}>
                             <Typography>
-                                Total price: {statistics.price || 'not calculated'}
+                                Total price: {(+statistics.price).toFixed(2) || 'not calculated'}
                             </Typography>
                         </Box>
                     </Paper>

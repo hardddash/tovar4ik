@@ -31,6 +31,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Typography from "@material-ui/core/Typography";
+import FormHelperText from '@material-ui/core/FormHelperText';
+
 
 
 function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
@@ -42,7 +44,7 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
         price: '',
         group_id: '',
     };
-    const [backendError,setBackendError] = React.useState("");
+    const [backendError, setBackendError] = React.useState("");
     const [data, setData] = React.useState(idata || defaultData);
     const [errors, setErrors] = React.useState({});
     const {token, setToken} = useAuth();
@@ -111,11 +113,11 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
             .send(data)
             .set('token', token)
             .then(response => {
-            setBackendError(null);
+                setBackendError(null);
                 onFinish && onFinish();
             })
             .catch(error => {
-                switch(error.status){
+                switch (error.status) {
                     case 401:
                         setToken(null);
                         break;
@@ -137,22 +139,22 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
             .query({id: +idata.id})
             .set('token', token)
             .then(response => {
-            setBackendError(null);
+                setBackendError(null);
                 onFinish && onFinish();
             })
-           .catch(error => {
-               switch(error.status){
-                   case 401:
-                       setToken(null);
-                       break;
-                   case 409:
-                       setBackendError("Good's name already exists");
-                       break;
-                   default:
-                       setBackendError("Error");
-                       break;
-               }
-           });
+            .catch(error => {
+                switch (error.status) {
+                    case 401:
+                        setToken(null);
+                        break;
+                    case 409:
+                        setBackendError("Good's name already exists");
+                        break;
+                    default:
+                        setBackendError("Error");
+                        break;
+                }
+            });
 
 
     }
@@ -161,7 +163,9 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
         function makeInt(obj, keys) {
             for (const key of keys) {
                 const item = obj[key];
-                obj = {...obj, [key]: +item || item};
+                if (item[item.length] !== '.') {
+                    obj = {...obj, [key]: +item || item};
+                }
             }
             return obj;
         }
@@ -174,9 +178,9 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
         <Dialog onClose={onClose} aria-labelledby="simple-dialog-title" open={open}>
             <DialogTitle id="simple-dialog-title">{header}</DialogTitle>
             <List>
-              {backendError&&
+                {backendError &&
                 <ListItem>
-                    <Typography className = {classes.error}>
+                    <Typography className={classes.error}>
                         {backendError}
                     </Typography>
                 </ListItem>
@@ -239,7 +243,7 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
                     />
                 </ListItem>
                 <ListItem>
-                    <FormControl fullWidth>
+                    <FormControl fullWidth error={!!errors.group_id}>
                         <InputLabel id="demo-controlled-open-select-label">Group</InputLabel>
                         <Select
                             labelId="demo-simple-select-label"
@@ -251,6 +255,7 @@ function DataDialogEditor({onClose, onFinish, open, idata, groups, setGroups}) {
                             {groups.map(item => <MenuItem key={`group-${item.id}-${item.name}`}
                                                           value={item.id}>{item.name}</MenuItem>)}
                         </Select>
+                        {errors.group_id && <FormHelperText error>{errors.group_id}</FormHelperText>}
                     </FormControl>
                 </ListItem>
             </List>
@@ -276,7 +281,7 @@ export default function Goods() {
     const [search, setSearch] = React.useState('');
     const [isNewRow, setIsNewRow] = React.useState(false);
     const [groups, setGroups] = React.useState([]);
-    const {token,setToken} = useAuth();
+    const {token, setToken} = useAuth();
     const classes = useStyles();
     const confirm = useConfirmDialog();
 
@@ -289,7 +294,7 @@ export default function Goods() {
                 setGoods(response.body);
             })
             .catch(error => {
-                switch(error.message){
+                switch (error.message) {
                     case 401:
                         setToken(null);
                         break;
@@ -307,7 +312,7 @@ export default function Goods() {
             .set('token', token)
             .then(response => handleUpdate())
             .catch(error => {
-                switch(error.message){
+                switch (error.message) {
                     case 401:
                         setToken(null);
                         break;
