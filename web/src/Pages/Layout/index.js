@@ -113,6 +113,7 @@ export default function Layout() {
                         {header_name}
                     </Typography>
                     <IconButton
+                        edge={"end"}
                         className={clsx(classes.signOutButton)}
                         color={"inherit"}
                         onClick={() => setToken(null)}
